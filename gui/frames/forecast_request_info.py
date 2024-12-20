@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
 
-from empyrean.labelframe import LabelFrame
+from gui.empyrean.labelframe import LabelFrame
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
 
@@ -21,8 +21,8 @@ class ForecastRequestInfo_LabelFrame(LabelFrame):
         last_request_label = ttk.Label(self, text="Last Forecast Request:")
         self.add_widget(
                 widget=last_request_label, 
-                type=WidgetType.LABEL, 
-                name=widget_name, 
+                widget_type=WidgetType.LABEL, 
+                widget_name=widget_name, 
                 placement = GridPlacement(col=0, row=0, sticky=tk.E)
             )
 
@@ -33,8 +33,8 @@ class ForecastRequestInfo_LabelFrame(LabelFrame):
         last_request_text = ttk.Label(self, textvariable=self.display_label_vars[widget_name])
         self.add_widget(
                 widget=last_request_text, 
-                type=WidgetType.LABEL, 
-                name=widget_name, 
+                widget_type=WidgetType.LABEL, 
+                widget_name=widget_name, 
                 placement = GridPlacement(col=1, row=0, sticky=tk.EW)
             )
 
@@ -42,8 +42,8 @@ class ForecastRequestInfo_LabelFrame(LabelFrame):
         valid_till_label = ttk.Label(self, text="Vaild Until:")
         self.add_widget(
                 widget=valid_till_label, 
-                type=WidgetType.LABEL, 
-                name=widget_name, 
+                widget_type=WidgetType.LABEL, 
+                widget_name=widget_name, 
                 placement = GridPlacement(col=0, row=1, sticky=tk.E)
             )
 
@@ -54,8 +54,8 @@ class ForecastRequestInfo_LabelFrame(LabelFrame):
         valid_till_text = ttk.Label(self, textvariable=self.display_label_vars[widget_name])
         self.add_widget(
                 widget=valid_till_text, 
-                type=WidgetType.LABEL, 
-                name=widget_name, 
+                widget_type=WidgetType.LABEL, 
+                widget_name=widget_name, 
                 placement = GridPlacement(col=1, row=1, sticky=tk.EW)
             )
 

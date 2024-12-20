@@ -9,11 +9,19 @@ class LabelFrame(tk.LabelFrame):
     widgets = { }
     display_label_vars = { }
 
-    def __init__(self, container) -> None:
+    def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }) -> None:
         super().__init__(container)
 
         for widget_type in WidgetType.list():
             self.widgets[widget_type] = { }
+        
+        if padding == False:
+            padding = self.get_default_padding()
+        if ipadding == False:
+            ipadding = self.get_default_ipadding()
+
+        options = {k: v for d in (padding, ipadding) for k, v in d.items()}
+        self.configure(cnf=options)
         
     def get_default_padding() -> dict[str, int]:
         return { 'padx' : 5, 'pady' : 5}
@@ -21,9 +29,9 @@ class LabelFrame(tk.LabelFrame):
     def get_default_ipadding() -> dict[str, int]:
         return { 'ipadx' : 5, 'ipady' : 5}
 
-    def add_widget(self, widget, type: WidgetType, name: str, placement: GridPlacement) -> None:
-        self.widgets[type][name] = widget
-        self.widgets[type][name].grid(
+    def add_widget(self, widget, widget_type: WidgetType, widget_name: str, placement: GridPlacement) -> None:
+        self.widgets[widget_type.value][widget_name] = widget
+        self.widgets[widget_type.value][widget_name].grid(
             column= placement.col,
             columnspan = placement.span["col"],
             row= placement.row,

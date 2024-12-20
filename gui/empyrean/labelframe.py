@@ -6,11 +6,14 @@ from utils.WidgetEnum import *
 
 class LabelFrame(ttk.Labelframe):
 
+    container = None
     widgets = { }
     display_label_vars = { }
 
     def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }, title: str = '' ) -> None:
         super().__init__(container)
+
+        self.container = container
 
         for widget_type in WidgetType.list():
             self.widgets[widget_type] = { }

@@ -153,4 +153,5 @@ cython_debug/
 
 # Contains PII
 Forecasts/*
-private.json
+utils/private.json
+utils/private.py

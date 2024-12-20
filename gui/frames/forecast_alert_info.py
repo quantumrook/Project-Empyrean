@@ -17,6 +17,9 @@ class ForecastAlertInfo_LabelFrame(LabelFrame):
         self.__add_content()
         self.update_title(f'{self._title} <Location>')
 
+        if self.container.locations:
+            self.update_title(f'{self._title} {self.container.locations[0]["name"]}')
+
     def __add_content(self):
         dummy_text = "N/A"
 

@@ -11,7 +11,7 @@ class Notebook(ttk.Notebook):
 
     def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }) -> None:
         super().__init__(container)
-        
+
         if padding == False:
             padding = self.get_default_padding()
         if ipadding == False:
@@ -53,4 +53,4 @@ class Notebook(ttk.Notebook):
     def on_tab_change(self, event):
         self.previous_tab = self.current_tab
         self.current_tab = event.widget.tab('current')['text']
-        
+

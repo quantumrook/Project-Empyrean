@@ -1,15 +1,15 @@
-import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import messagebox
 
 from utils.gridplacement import *
 from utils.WidgetEnum import *
 
-class LabelFrame(tk.LabelFrame):
+class LabelFrame(ttk.Labelframe):
 
     widgets = { }
     display_label_vars = { }
 
-    def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }) -> None:
+    def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }, title: str = '' ) -> None:
         super().__init__(container)
 
         for widget_type in WidgetType.list():
@@ -22,6 +22,7 @@ class LabelFrame(tk.LabelFrame):
 
         options = {k: v for d in (padding, ipadding) for k, v in d.items()}
         self.configure(cnf=options)
+        self.update_title(title)
         
     def get_default_padding() -> dict[str, int]:
         return { 'padx' : 5, 'pady' : 5}

@@ -3,7 +3,6 @@ from tkinter import ttk
 
 from gui.frames.forecast_alert_info import ForecastAlertInfo_LabelFrame
 from gui.frames.forecast_request_info import ForecastRequestInfo_LabelFrame
-from gui.frames.test_frame import Test_Frame
 from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
 
 from utils.private import *
@@ -12,7 +11,7 @@ from utils.json.private_reader import *
 
 class MainWindow(tk.Tk):
 
-    locations = { }
+    locations = [ ]
 
     def __init__(self) -> None:
         super().__init__()
@@ -35,8 +34,6 @@ class MainWindow(tk.Tk):
         alert_info = ForecastAlertInfo_LabelFrame(self)
         alert_info.grid(column=1, row=0,sticky=tk.NW)
 
-        # test_frame = Test_Frame(self)
-        # test_frame.grid(column=0, columnspan=2, row=1, sticky=tk.NSEW)
         forecast_viewer = ForecastViewer_Notebook(self)
         forecast_viewer.grid(column=0, columnspan=2, row=1, sticky=tk.NSEW)
 
@@ -47,8 +44,5 @@ class MainWindow(tk.Tk):
         self.style.configure('TNotebook.Tab',       font=('Tahoma', 11))
 
     def load_private_data(self) -> None:
-        with open(f"{project_directory_path}\\Project-Empyrean\\utils\\private.json") as file:
-            data = json.load(file)
-        
-        self.locations = data["locations"]
+        self.locations = get_private_data(filename=f'{project_directory_path}\\Project-Empyrean\\utils\\private.json')
         

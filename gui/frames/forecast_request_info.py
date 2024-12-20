@@ -17,7 +17,7 @@ class ForecastRequestInfo_LabelFrame(LabelFrame):
         self.update_title(f'{self._title} <Location>')
 
         if self.container.locations:
-            self.update_title(f'{self._title} {self.container.locations[0]["name"]}')
+            self.update_title(f'{self._title} {self.container.locations[0].name}')
         
 
     def __add_content(self):

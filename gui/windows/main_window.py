@@ -34,7 +34,7 @@ class MainWindow(tk.Tk):
         forecast_viewer = ForecastViewer_Notebook(self)
         forecast_viewer.grid(column=0, columnspan=2, row=1, sticky=tk.NSEW)
 
-    def set_default_style(self):
+    def set_default_style(self) -> None:
         self.style = ttk.Style(self)
         self.style.configure('.',                   font=('Tahmoa', 10))
         self.style.configure('TLabelframe.Label',   font=('Tahoma', 12))

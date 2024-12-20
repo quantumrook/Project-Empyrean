@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
 import tkinter.ttk as ttk
 
 from gui.empyrean.labelframe import LabelFrame
+
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
 

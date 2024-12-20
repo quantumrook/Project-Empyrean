@@ -1,7 +1,8 @@
-from tkinter import ttk
 import tkinter as tk
+
 from gui.empyrean.notebook import Notebook
 from gui.empyrean.labelframe import LabelFrame
+
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
 

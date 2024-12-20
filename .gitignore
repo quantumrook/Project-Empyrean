@@ -155,3 +155,4 @@ cython_debug/
 Forecasts/*
 utils/private.json
 utils/private.py
+gui/icons/*.png

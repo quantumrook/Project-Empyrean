@@ -16,6 +16,8 @@ class WidgetType(Enum):
     TEXT            = auto()
     FRAME           = auto()
     LABELFRAME      = auto()
+    NOTEBOOK        = auto()
+    PHOTOIMAGE      = auto()
 
     @classmethod
     def list(cls) -> list:

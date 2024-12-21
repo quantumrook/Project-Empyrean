@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from time import timezone
 from typing import Any
 
 @dataclass

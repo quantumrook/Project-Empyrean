@@ -9,13 +9,20 @@ from gui.empyrean.labelframe import LabelFrame
 
 from gui.icons.icons import icons
 
+from utils.download_manager import ForecastDownloader, ForecastType
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
+from utils.json.location import Location
 
 class ForecastViewer_Notebook(Notebook):
     
-    def __init__(self, container) -> None:
+    location = None
+
+    def __init__(self, container, location: Location) -> None:
         super().__init__(container)
+
+        self.location = location
+        self.download_manager = None
 
         self.__create_frames()
         self.__add_icon()
@@ -51,6 +58,24 @@ class ForecastViewer_Notebook(Notebook):
             placement= GridPlacement(col=2, row=0, span={"col":1, "row": 1}, sticky=tk.NE )
         )
         self.subframes['hourly'][WidgetType.LABELFRAME].widgets[WidgetType.BUTTON]["Popout"].image = popout_image
+
+
+        img = Image.open(icons["download"])
+        img = img.resize((24, 24), Image.ANTIALIAS)
+        download_img = ImageTk.PhotoImage(img)
+        self.subframes['hourly'][WidgetType.LABELFRAME].add_widget(
+            widget= tk.Button(self.subframes['hourly'][WidgetType.LABELFRAME], image=download_img, command=lambda: self.get_forecast()),
+            widget_type= WidgetType.BUTTON,
+            widget_name= "Download",
+            placement= GridPlacement(col=1, row=0, span={"col":1, "row": 1}, sticky=tk.NE )
+        )
+        self.subframes['hourly'][WidgetType.LABELFRAME].widgets[WidgetType.BUTTON]["Download"].image = download_img
+
+    def get_forecast(self):
+        if self.download_manager is None:
+            download_manager = ForecastDownloader()
+            download_manager.start_download(location=self.location, forecast_request_type=ForecastType.HOURLY)
+            #download_manager = None
 
     def set_content(self, frame_id: tuple[str, WidgetType], content: list[str ], placements: list[GridPlacement]) -> None:
         frame_to_update = self.subframes[frame_id[0]][frame_id[1]]

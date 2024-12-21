@@ -1,5 +1,6 @@
 from datetime import datetime
 from pytz import timezone
+from utils.private import default_timezone
 
 class EmpyreanDateTime():
     datetime_format:    str
@@ -10,59 +11,42 @@ class EmpyreanDateTime():
 
     time_zone:          timezone
 
-    def __init__(self, location_timezone: str = '', api_string: str ='', from_datetime: datetime =None, from_string: str ='') -> None:
+    def __init__(self, location_timezone: str = '', generating_str: str ='', from_datetime: datetime =None) -> None:
 
         self.datetime_format = "%Y-%m-%d %H:%M"
+        self.default_timezone = timezone(default_timezone)
 
         if location_timezone:
             self.time_zone = timezone(location_timezone)
         else:
-            self.time_zone = "America/Los_Angeles"
+            self.time_zone = self.default_timezone
 
-        if (api_string == '') == False:
-            self.__convert_api_datetimes_to_object(api_string)
-        
-        if from_datetime is not None:
+        if generating_str:
+            self.__convert_str_datetime_to_object(generating_str)
+        elif from_datetime is not None:
             self.__convert_datetime_to_object(from_datetime)
+        else:
+            now_str = datetime.strftime(datetime.now(), self.datetime_format)
+            self.date_time = datetime.strp(now_str, self.datetime_format)
+            self.date, self.time = datetime.strftime(self.date_time, self.date_time).split(' ')
+
+    def __convert_str_datetime_to_object(self, generating_str: str)->None:
+        if 'T' in generating_str:
+            date_and_time, _, junk = generating_str.partition('+')
+            date, _, time = date_and_time.partition('T')
+            hour, minute, *unused_extra_precision = time.split(sep=':')
+            generating_str = f'{date} {hour}:{minute}'
         
-        if (from_string == '') == False:
-            self.__convert_string_to_object(from_string)
-
-    def __convert_api_datetimes_to_object(self, api_string: str, time_zone: str ='')->None:
-        date_and_time, _, junk = api_string.partition("+")
-        date, time = date_and_time.split(sep="T")
-        hour, minute, *more_junk = time.split(sep=":")
-
-        #Create the datetime object to handle timezone changing and formatting for us
-        converted_datetime = datetime.strptime(f'{date} {hour}:{minute}', self.datetime_format)
-
-        if time_zone:
-            current_timezone = timezone(time_zone)
-            converted_datetime = current_timezone.localize(current_timezone)
-        converted_datetime = self.time_zone.localize(converted_datetime)
-
-        self.date_time = converted_datetime
-        self.date, self.time = converted_datetime.split(sep=" ")
-
-
-    def __convert_datetime_to_object(self, original_datetime: datetime, time_zone: str ='')->None:
-        """
-        Assumes the provided datetime instance is already formatted to our specification
-        """
-        if time_zone:
-            current_timezone = timezone(time_zone)
-            converted_datetime = current_timezone.localize(current_timezone)
-        converted_datetime = self.time_zone.localize(converted_datetime)
+        self.date_time = self.time_zone.localize(datetime.strptime(generating_str, self.datetime_format))
+        if (self.default_timezone == self.time_zone) == False:
+            self.date_time = self.default_timezone.localize(self.date_time)
         self.date, self.time = datetime.strftime(self.date_time, self.datetime_format).split(' ')
 
-    def __convert_string_to_object(self, generating_string: str, time_zone: str ='')->None:
-        """
-        Assumes the provided datetime instance is already formatted to our specification
-        """
-        self.date_time = self.time_zone.localize(datetime.strptime(generating_string, self.datetime_format))
-        if time_zone:
-            current_timezone = timezone(time_zone)
-            self.date_time = current_timezone.localize(current_timezone)
+    def __convert_datetime_to_object(self, original_datetime: datetime)->None:
+        formatted_datetime_str = datetime.strftime(original_datetime, self.datetime_format)
+        self.date_time = self.time_zone.localize(datetime.strptime(formatted_datetime_str, self.datetime_format))
+        if (self.default_timezone == self.time_zone) == False:
+            self.date_time = self.default_timezone.localize(self.date_time)
         self.date, self.time = datetime.strftime(self.date_time, self.datetime_format).split(' ')
     
     def as_string(self)->str:

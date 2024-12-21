@@ -1,6 +1,7 @@
-from enum import Enum, auto
+from enum import Enum
 from random import randint
 from threading import Thread
+import threading
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import END, ttk
@@ -9,6 +10,8 @@ from urllib.error import HTTPError
 
 import requests
 import time
+from utils.json.forecast import Forecast
+from utils.json.private_writer import save_forecast_data
 
 
 from utils.json.location import Location
@@ -18,7 +21,11 @@ class ForecastType(Enum):
     HOURLY      = 'hourly'
     EXTENDED    = 'extended'
 
+    def as_log_str(self):
+        return self.name
+
 class DownloadStatus(Enum):
+    INSTANTIATING                   = 0
     INITIALIZING                    = 1
     BUILDING_REQUEST                = 2
     REQUEST_BUILT                   = 3
@@ -26,8 +33,17 @@ class DownloadStatus(Enum):
     API_TIMEOUT_PROTECTION_COMPLETE = 5
     SENDING_REQUEST                 = 6
     REQUEST_RECIEVED                = 7
+    CONVERTING_SOURCE_DATA          = 8
     REQUEST_FAILED                  = -1
-    REQUEST_SUCCESS                 = 8
+    REQUEST_SUCCESS                 = 9
+    SAVING_DATA                     = 10
+    SAVE_COMPLETE                   = 11
+
+    def max_value():
+        return DownloadStatus.SAVE_COMPLETE.value
+
+    def as_log_str(self):
+        return self.name
 
 class HTMLStatusCode(Enum):
     OK                  = 200
@@ -46,10 +62,12 @@ class ForecastDownload(Thread):
     def __init__(self, location: Location, forecast_type: ForecastType) -> None:
         super().__init__()
 
-        self.status = DownloadStatus.INITIALIZING
+        self.status = DownloadStatus.INSTANTIATING
 
         self.location = location
         self.forecast_type = forecast_type
+
+        self.response_json = None
 
     def __build_url(self) -> str:
         url = f'{self.__api_address}/'
@@ -63,18 +81,18 @@ class ForecastDownload(Thread):
             case default:
                 print(f"{self.forecast_type=} for requesting from {self.__api_address} is not valid.\nLocation Data:{self.location.to_json()}")
                 raise ValueError(f"{self.forecast_type=} for requesting from {self.__api_address} is not valid.\nLocation Data:{self.location.to_json()}")
-        time.sleep(randint(1, self.__time_delay_max))
+        
         return url
 
     def __exectute_timeout_safeguard(self) -> None:
-        time.sleep(randint(1, self.__time_delay_max))
+        time.sleep(1)
 
     def __check_response_code_and_return_json(self, url) -> bool:
-        time.sleep(randint(1, self.__time_delay_max))
-        self.status.SENDING_REQUEST
-        time.sleep(randint(1, self.__time_delay_max))
         try:
             with requests.get(url=url) as request:
+                self.status = DownloadStatus.REQUEST_RECIEVED
+                time.sleep(1)
+                self.status = DownloadStatus.CONVERTING_SOURCE_DATA
                 response = request.json()
         except HTTPError as http_err:
             match request.status_code:
@@ -86,29 +104,33 @@ class ForecastDownload(Thread):
             self.error_message.append(f"Further details:\n\t{http_err}\n")
             print(self.error_message)
         finally:
+            time.sleep(1)
             return response
 
     def run(self):
 
         self.status = DownloadStatus.BUILDING_REQUEST
+        time.sleep(1)
         url = self.__build_url()
         self.status = DownloadStatus.REQUEST_BUILT
-        
+        time.sleep(0.5)
+
         self.status = DownloadStatus.API_TIMEOUT_PROTECTION_STARTED
         self.__exectute_timeout_safeguard()
         self.status = DownloadStatus.API_TIMEOUT_PROTECTION_COMPLETE
+        time.sleep(1)
 
+        self.status = DownloadStatus.SENDING_REQUEST
+        time.sleep(0.5)
         self.response_json = self.__check_response_code_and_return_json(url=url)
         self.status = DownloadStatus.REQUEST_SUCCESS
+        time.sleep(1)
 
 class ForecastDownloader(tk.Toplevel):
-    _open_threads : list[ForecastDownload]
 
     def __init__(self) -> None:
         super().__init__()
         self.wm_title("Download Status")
-
-        self._open_threads = [ ]
 
         self.status_text_log = ScrolledText(self)
         self.status_text_log.grid(column=0, row=0)
@@ -120,51 +142,53 @@ class ForecastDownloader(tk.Toplevel):
         self.rowconfigure(1, weight=1)
 
 
-    def save_download(self, content):
-        print("Tried to save, but we're not there yet!")
-        pass
+    def save_download(self, download_thread: ForecastDownload):
+        download_thread.status = DownloadStatus.SAVING_DATA
+        time.sleep(1)
+        forecast_to_save = Forecast(download_thread.response_json["properties"])
+        save_forecast_data(download_thread.location, download_thread.forecast_type, forecast_to_save)
+        time.sleep(1)
+        download_thread.status = DownloadStatus.SAVE_COMPLETE
+        time.sleep(1)
 
     def start_download(self, location: Location, forecast_request_type: ForecastType):
-        print("Download Started.")
-        if self._open_threads:
-            for thread in self._open_threads:
-                if (thread.forecast_type == forecast_request_type) and (thread.location == location):
-                    raise Exception(f"Download already exists for: {location.alias} @ {forecast_request_type}")
-        self._open_threads.append(ForecastDownload(location, forecast_request_type))
-        self._open_threads[-1].start()
-        self.monitor_download(self._open_threads[-1])
+        print(f"Download Started for ({location.name}) of type ({forecast_request_type.name}).")
+        new_download_thread = ForecastDownload(location, forecast_request_type)
+        new_download_thread.name = f'{forecast_request_type}-{location.alias}'
+        if threading.active_count() < 3:
+            new_download_thread.start()
+            self.monitor_download(new_download_thread, DownloadStatus.INSTANTIATING)
+        else:
+            raise RuntimeError("Oh shit")
     
     def end_download(self, download_thread: ForecastDownload):
-        if download_thread.status == DownloadStatus.REQUEST_SUCCESS:
-            self.save_download(download_thread.response_json)
-        else:
-            print(f'{download_thread.forecast_type} for {download_thread.location.name} Failed', download_thread.error_message)
+        if download_thread.status == DownloadStatus.REQUEST_FAILED:
+            print(f'{download_thread.forecast_type.name} for {download_thread.location.name} Failed', download_thread.error_message)
             messagebox.showerror(f'{download_thread.forecast_type} for {download_thread.location.name} Failed', download_thread.error_message)
-            self._open_threads.remove(download_thread)
-            download_thread = None
         
-        if len(self._open_threads) == 0:
+        if threading.active_count() == 1:
             self.downloadbar["value"] = 100
             self.closebutton = tk.Button(self, text="Close", command=self.close_manager)
             self.closebutton.grid(column=0, row=2)
 
-    def monitor_download(self, download_thread: ForecastDownload):
+    def monitor_download(self, download_thread: ForecastDownload, previous_status: DownloadStatus):
+        progress_count = self.downloadbar["value"]
+        for thread in threading.enumerate():
+            if isinstance(thread, ForecastDownload):
+                progress_count += (thread.status.value * 10) / DownloadStatus.max_value()
+        if threading.active_count() > 1:
+            self.downloadbar["value"] = round(progress_count / (threading.active_count() - 1))
+
         if download_thread.is_alive():
-            log_text = f'Thread: {download_thread.location.name}; Type: {download_thread.forecast_type}; Status: {download_thread.status}\n'
-            print(log_text)
+            if download_thread.status == DownloadStatus.REQUEST_SUCCESS:
+                self.save_download(download_thread)
+            log_text = f'({download_thread.location.name}): {download_thread.forecast_type.name} -> {download_thread.status}\n'
             self.status_text_log.insert(END, log_text)
-            self.after(100, lambda: self.monitor_download(download_thread))
+            self.after(1000, lambda: self.monitor_download(download_thread, download_thread.status))
         else:
             self.end_download(download_thread)
 
-        progress_count = 0
-        for thread in self._open_threads:
-            progress_count += int(thread.status)
-        if len(self._open_threads) > 0:
-            self.downloadbar["value"] = round(progress_count/len(self._open_threads))
-
     def close_manager(self) -> None:
-        self._open_threads = None
         widgets = self.grid_slaves()
         for l in widgets:
             l.destroy()

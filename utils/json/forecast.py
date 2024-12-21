@@ -30,10 +30,10 @@ class ForecastData():
     name                        : str
     startTime                   : EmpyreanDateTime
     endTime                     : EmpyreanDateTime
-    isDayTime                   : bool
-    temperature                 : TemperatureData()
+    isDaytime                   : bool
+    temperature                 : TemperatureData
     probabilityOfPrecipitation  : int
-    wind                        : WindData()
+    wind                        : WindData
     icon                        : str
     short                       : str
     detailed                    : list[str]
@@ -41,9 +41,9 @@ class ForecastData():
     def __init__(self, forecast_data: dict[str, Any]) -> None:
         self.number = forecast_data["number"]
         self.name = forecast_data["name"]
-        self.startTime = EmpyreanDateTime(from_string=forecast_data["startTime"])
-        self.endTime = EmpyreanDateTime(from_string=forecast_data["endTime"])
-        self.isDayTime = bool(forecast_data["isDayTime"])
+        self.startTime = EmpyreanDateTime(generating_str=forecast_data["startTime"])
+        self.endTime = EmpyreanDateTime(generating_str=forecast_data["endTime"])
+        self.isDaytime = bool(forecast_data["isDaytime"])
         self.temperature = TemperatureData(forecast_data)
         self.probabilityOfPrecipitation = forecast_data["probabilityOfPrecipitation"]["value"]
         self.wind = WindData(forecast_data)
@@ -58,7 +58,7 @@ class ForecastData():
             "name"                          : self.name,
             "startTime"                     : self.startTime.as_string(),
             "endTime"                       : self.endTime.as_string(),
-            "isDayTime"                     : str(self.isDayTime),
+            "isDayTime"                     : str(self.isDaytime),
             "temperature"                   : self.temperature.value,
             "temperatureUnit"               : self.temperature.unit,
             "temperatureTrend"              : self.temperature.trend,
@@ -89,18 +89,18 @@ class Forecast():
 
     def __init__(self, forecast_data: dict[str, Any]) -> None:
         self.units = forecast_data["units"]
-        self.generatedAt = EmpyreanDateTime(from_string=forecast_data["generatedAt"])
-        self.updateTime =  EmpyreanDateTime(from_string=forecast_data["updateTime"])
-        self.validTimes = EmpyreanDateTime(from_string=forecast_data["validTimes"])
-
+        self.generatedAt = EmpyreanDateTime(generating_str=forecast_data["generatedAt"])
+        self.updateTime =  EmpyreanDateTime(generating_str=forecast_data["updateTime"])
+        self.validTimes = EmpyreanDateTime(generating_str=forecast_data["validTimes"])
+        self.forecasts = { }
         for period in forecast_data["periods"]:
-            forecast = ForecastData(forecast_data["periods"][period])
+            forecast = ForecastData(period)
             self.forecasts[forecast.startTime.as_string()] = forecast
         
     def to_json(self):
         periods = { }
         period = 0
-        for dt, data in self.forecasts:
+        for dt, data in self.forecasts.items():
             periods[str(period)] = data.to_json()
             period += 1
         return {

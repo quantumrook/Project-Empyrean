@@ -64,18 +64,32 @@ class ForecastViewer_Notebook(Notebook):
         img = img.resize((24, 24), Image.ANTIALIAS)
         download_img = ImageTk.PhotoImage(img)
         self.subframes['hourly'][WidgetType.LABELFRAME].add_widget(
-            widget= tk.Button(self.subframes['hourly'][WidgetType.LABELFRAME], image=download_img, command=lambda: self.get_forecast()),
+            widget= tk.Button(self.subframes['hourly'][WidgetType.LABELFRAME], image=download_img, command=lambda: self._on_click_get_forecast()),
             widget_type= WidgetType.BUTTON,
             widget_name= "Download",
             placement= GridPlacement(col=1, row=0, span={"col":1, "row": 1}, sticky=tk.NE )
         )
         self.subframes['hourly'][WidgetType.LABELFRAME].widgets[WidgetType.BUTTON]["Download"].image = download_img
 
-    def get_forecast(self):
+    def _on_click_get_forecast(self):
+
+        # TODO:: Check if the forecast has already been downloaded (e.g., earlier today)
+
+        # TODO:: Check if the forecast is still valid
+
         if self.download_manager is None:
-            download_manager = ForecastDownloader()
-            download_manager.start_download(location=self.location, forecast_request_type=ForecastType.HOURLY)
-            #download_manager = None
+            self.download_manager = ForecastDownloader()
+            self.download_manager.start_download(location=self.location, forecast_request_type=ForecastType.HOURLY)
+            #self._monitor_download_manager()
+
+    def _monitor_download_manager(self):
+        if self.download_manager is None:
+            self.update_forecast()
+        else:
+            self.after(1000, self._monitor_download_manager)
+
+    def update_forecast(self):
+        pass
 
     def set_content(self, frame_id: tuple[str, WidgetType], content: list[str ], placements: list[GridPlacement]) -> None:
         frame_to_update = self.subframes[frame_id[0]][frame_id[1]]

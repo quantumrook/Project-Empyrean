@@ -39,7 +39,7 @@ class MainWindow(tk.Tk):
     
     def create_notebook_for_locations(self) -> None:
         self.forecast_viewers = Notebook(self)
-        #self.locations = [self.locations[0]]
+        
         for location in self.locations:
             print(location.alias)
             viewer_holder = LabelFrame(self)
@@ -62,11 +62,10 @@ class MainWindow(tk.Tk):
                 frame= ForecastViewer_Notebook(viewer_holder, location),
                 type= WidgetType.NOTEBOOK,
                 name= f'{location.name}_ForecastViewer',
-                placement= GridPlacement(col=0, span={"col":2, "row": 1}, sticky=tk.NSEW)
+                placement= GridPlacement(col=0, row=1, span={"col":2, "row": 1}, sticky=tk.NSEW)
             )
             viewer_holder.columnconfigure(0, weight=1)
             viewer_holder.columnconfigure(1, weight=1)
-            viewer_holder.rowconfigure(0, weight=1)
             self.forecast_viewers.add_frame(
                 frame= viewer_holder,
                 type= WidgetType.LABELFRAME,

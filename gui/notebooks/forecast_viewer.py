@@ -73,7 +73,6 @@ class ForecastViewer_Notebook(Notebook):
         elif tab_event_name == tab_extended_name:
             self.current_tab = tab_extended_name
         self.bind_buttons()
-        print(f'\t{self.previous_tab=}, {self.current_tab=}')
 
     def _on_click_get_forecast(self):
 

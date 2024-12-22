@@ -3,7 +3,6 @@ import tkinter.ttk as ttk
 
 from gui.empyrean.labelframe import LabelFrame
 
-
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
 from utils.json.location import Location

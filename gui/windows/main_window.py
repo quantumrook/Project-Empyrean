@@ -1,11 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
+
 from gui.empyrean.labelframe import LabelFrame
 from gui.empyrean.notebook import Notebook
 
 from gui.frames.forecast_alert_info import ForecastAlertInfo_LabelFrame
+from gui.frames.forecast_buttons import ForecastButtons_LabelFrame
 from gui.frames.forecast_request_info import ForecastRequestInfo_LabelFrame
+
 from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
+
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
 
@@ -39,7 +43,7 @@ class MainWindow(tk.Tk):
     
     def create_notebook_for_locations(self) -> None:
         self.forecast_viewers = Notebook(self)
-        
+
         for location in self.locations:
             print(location.alias)
             viewer_holder = LabelFrame(self)
@@ -59,11 +63,21 @@ class MainWindow(tk.Tk):
             )
 
             viewer_holder.add_frame(
-                frame= ForecastViewer_Notebook(viewer_holder, location),
+                frame= ForecastButtons_LabelFrame(viewer_holder, location),
+                type= WidgetType.LABELFRAME,
+                name= f'{location.alias}_Buttons',
+                placement= GridPlacement(col=2, sticky=tk.NSEW)
+            )
+
+            control_buttons = viewer_holder.subframes[f'{location.alias}_Buttons'][WidgetType.LABELFRAME].get_buttons()
+
+            viewer_holder.add_frame(
+                frame= ForecastViewer_Notebook(viewer_holder, location, control_buttons),
                 type= WidgetType.NOTEBOOK,
                 name= f'{location.name}_ForecastViewer',
                 placement= GridPlacement(col=0, row=1, span={"col":2, "row": 1}, sticky=tk.NSEW)
             )
+
             viewer_holder.columnconfigure(0, weight=1)
             viewer_holder.columnconfigure(1, weight=1)
             self.forecast_viewers.add_frame(
@@ -78,69 +92,3 @@ class MainWindow(tk.Tk):
         self.forecast_viewers.rowconfigure(0, weight=1)
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
-
-    def create_notebooks_manually(self) -> None:
-        self.forecast_viewers = Notebook(self)
-        viewer_holder = LabelFrame(self)
-
-        viewer_holder.add_frame(
-            frame= ForecastRequestInfo_LabelFrame(viewer_holder, self.locations[0]),
-            type= WidgetType.LABELFRAME,
-            name= f'{self.locations[0].alias}_RequestInfo',
-            placement= GridPlacement(sticky=tk.NSEW)
-        )
-
-        viewer_holder.add_frame(
-            frame= ForecastAlertInfo_LabelFrame(viewer_holder, self.locations[0]),
-            type= WidgetType.LABELFRAME,
-            name= f'{self.locations[0].alias}_AlertInfo',
-            placement= GridPlacement(col=1, sticky=tk.NSEW)
-        )
-
-        viewer_holder.add_frame(
-            frame= ForecastViewer_Notebook(viewer_holder, self.locations[0]),
-            type= WidgetType.NOTEBOOK,
-            name= f'{self.locations[0].name}_ForecastViewer',
-            placement= GridPlacement(col=0, span={"col":2, "row": 1}, sticky=tk.NSEW)
-        )
-
-        self.forecast_viewers.add_frame(
-            frame= viewer_holder,
-            type= WidgetType.LABELFRAME,
-            subframe_name= self.locations[0].alias,
-            frame_title= self.locations[0].name,
-            placement= GridPlacement(sticky=tk.NSEW)
-        )
-
-        viewer_holder = LabelFrame(self)
-
-        viewer_holder.add_frame(
-            frame= ForecastRequestInfo_LabelFrame(viewer_holder, self.locations[1]),
-            type= WidgetType.LABELFRAME,
-            name= f'{self.locations[1].alias}_RequestInfo',
-            placement= GridPlacement(sticky=tk.NSEW)
-        )
-
-        viewer_holder.add_frame(
-            frame= ForecastAlertInfo_LabelFrame(viewer_holder, self.locations[1]),
-            type= WidgetType.LABELFRAME,
-            name= f'{self.locations[1].alias}_AlertInfo',
-            placement= GridPlacement(col=1, sticky=tk.NSEW)
-        )
-
-        viewer_holder.add_frame(
-            frame= ForecastViewer_Notebook(viewer_holder, self.locations[1]),
-            type= WidgetType.NOTEBOOK,
-            name= f'{self.locations[1].name}_ForecastViewer',
-            placement= GridPlacement(col=0, span={"col":2, "row": 1}, sticky=tk.NSEW)
-        )
-
-        self.forecast_viewers.add_frame(
-            frame= viewer_holder,
-            type= WidgetType.LABELFRAME,
-            subframe_name= self.locations[0].alias,
-            frame_title= self.locations[0].name,
-            placement= GridPlacement(sticky=tk.NSEW)
-        )
-        self.forecast_viewers.grid(column=0, row=0, sticky=tk.NSEW)
-        print('-----\nDone creating nested notebooks')

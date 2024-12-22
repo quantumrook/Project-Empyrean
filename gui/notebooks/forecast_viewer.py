@@ -1,16 +1,10 @@
-from cProfile import label
-from distutils.fancy_getopt import wrap_text
-from itertools import zip_longest
 import tkinter as tk
-from tkinter import Widget, messagebox
+from tkinter import messagebox
 
-from PIL import ImageTk, Image
 from gui.empyrean.datetime import EmpyreanDateTime
 
 from gui.empyrean.notebook import Notebook
 from gui.empyrean.labelframe import LabelFrame
-
-from gui.icons.icons import icons
 
 from utils.download_manager import DownloadStatus, ForecastDownloader, ForecastType
 from utils.WidgetEnum import WidgetType
@@ -20,23 +14,21 @@ from utils.json.location import Location
 
 class ForecastViewer_Notebook(Notebook):
 
-    def __init__(self, container, location: Location) -> None:
+    def __init__(self, container, location: Location, control_buttons: list[tk.Button]) -> None:
         self.location = location
         self.download_manager = None
 
         super().__init__(container)
         self.container = container
 
+        self.control_buttons = control_buttons
+
         self.sub_frame_names = [ ]
         self.sub_button_names = [ ]
 
         self.__create_frames()
-        self.__add_icon()
 
-        self.__bind_buttons()
-
-    def __create_frames(self) -> None:
-        
+    def __create_frames(self) -> None:     
         frame_names = [f'{self.location.alias}' + f'{ForecastType.HOURLY.value.title()}', f'{self.location.alias}' + f'{ForecastType.EXTENDED.value.title()}']
         tab_names = [ForecastType.HOURLY.value.title(), ForecastType.EXTENDED.value.title()]
         for frame_name, tab_name in zip(frame_names, tab_names):
@@ -55,56 +47,21 @@ class ForecastViewer_Notebook(Notebook):
 
             self.sub_frame_names.append(frame_name)
 
-    def __add_icon(self):
+    def bind_buttons(self):
+        for button_widget_name, button_widget in self.control_buttons.items():
+            for forecast_type in [ForecastType.HOURLY.value.title(), ForecastType.EXTENDED.value.title()]:
+                if self.current_tab == (f'{self.location.alias}' + f'{forecast_type}'):
+                    if button_widget_name == 'Popout':
+                        button_widget.configure(command = lambda: self._on_click_get_markdown())
+                    elif button_widget_name == 'Download':
+                        button_widget.configure(command = lambda: self._on_click_get_forecast())
 
-        ## TODO :: Get to properly display on the NE corner of the frame
-        ## TODO :: Add functionality that, on click, copies the forecast to clipboard
-
-        for frame_name in self.sub_frame_names:
-            images = { }
-            for icon_name, icon_path in icons.items():
-                img = Image.open(icon_path)
-                img = img.resize((24, 24), Image.ANTIALIAS)
-                images[icon_name] = ImageTk.PhotoImage(img)
-            
-            buttonFrame = LabelFrame(self.subframes[frame_name][WidgetType.LABELFRAME])
-            buttonFrame.columnconfigure(0, weight=1)
-            buttonFrame.columnconfigure(1, weight=1)
-            buttonFrame.rowconfigure(0, weight=1)
-
-            column_counter = 0
-            for name, img in images.items():
-                buttonFrame.add_widget(
-                    widget= tk.Button(buttonFrame, image=img),
-                    widget_type= WidgetType.BUTTON,
-                    widget_name= (frame_name + name.title()),
-                    placement= GridPlacement(col=column_counter, row = 0, span={"col":1, "row":1}, sticky=tk.NE)
-                )
-                buttonFrame.widgets[WidgetType.BUTTON][(frame_name + name.title())].image = img
-                column_counter += 1
-                self.sub_button_names.append((frame_name + name.title()))
-
-            self.subframes[frame_name][WidgetType.LABELFRAME].add_frame(
-                frame= buttonFrame,
-                type= WidgetType.LABELFRAME,
-                name = f"{frame_name}_Buttons",
-                placement = GridPlacement(col=3, row=0, sticky=tk.NE)
-            )
-
-    def __bind_buttons(self):
-
-        # TODO:: Probably clean up the nested call from hell I've made to access things... Or maybe I need to not nest so many frames?
-        for frame_name in self.sub_frame_names:
-            for button_name, button in self.subframes[frame_name][WidgetType.LABELFRAME].subframes[f'{frame_name}_Buttons'][WidgetType.LABELFRAME].widgets[WidgetType.BUTTON].items():
-                for ftype in [ForecastType.HOURLY.value.title(), ForecastType.EXTENDED.value.title()]:
-                    if button_name == f'{self.location.alias}' + f'{ftype}' + f'Download':
-                        button.configure(command= lambda: self._on_click_get_forecast())
-                    elif button_name == f'{self.location.alias}' + f'{ftype}' + f'Popout':
-                        button.configure(command= lambda: self._on_click_get_markdown())
-
+    def unbind_buttons(self):
+        for _, button_widget in self.control_buttons.items():
+            button_widget.configure(command = None)
 
     def on_tab_change(self, event):
-
+        self.unbind_buttons()
         tab_event_name = f'{self.location.alias}' + event.widget.tab('current')['text']
         tab_hourly_name = f'{self.location.alias}' + f'{ForecastType.HOURLY.value.title()}'
         tab_extended_name = f'{self.location.alias}' + f'{ForecastType.EXTENDED.value.title()}'
@@ -115,6 +72,7 @@ class ForecastViewer_Notebook(Notebook):
             self.current_tab = tab_hourly_name
         elif tab_event_name == tab_extended_name:
             self.current_tab = tab_extended_name
+        self.bind_buttons()
         print(f'\t{self.previous_tab=}, {self.current_tab=}')
 
     def _on_click_get_forecast(self):

@@ -1,15 +1,15 @@
 from enum import Enum
-from random import randint
+import requests
 from threading import Thread
 import threading
-import tkinter as tk
-from tkinter.scrolledtext import ScrolledText
-from tkinter import END, ttk
-from tkinter import messagebox
+import time
 from urllib.error import HTTPError
 
-import requests
-import time
+import tkinter as tk
+from tkinter import END, ttk
+from tkinter import messagebox
+from tkinter.scrolledtext import ScrolledText
+
 from utils.json.forecast import Forecast
 from utils.json.private_writer import save_forecast_data
 

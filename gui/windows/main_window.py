@@ -27,20 +27,6 @@ class MainWindow(tk.Tk):
         self.set_default_style()
         self.load_private_data()
         self.create_notebook_for_locations()
-        # self.columnconfigure(0, weight=1)
-        # self.columnconfigure(1, weight=1)
-        
-        # self.rowconfigure(0, weight=1)
-        # self.rowconfigure(1, weight=24)
-
-        # request_info = ForecastRequestInfo_LabelFrame(viewer_holder, location)
-        # request_info.grid(column=0, row=0,sticky=tk.NW)
-
-        # alert_info = ForecastAlertInfo_LabelFrame(viewer_holder, location)
-        # alert_info.grid(column=1, row=0,sticky=tk.NW)
-
-        # forecast_viewer = ForecastViewer_Notebook(viewer_holder, location)
-        # forecast_viewer.grid(column=0, columnspan=2, row=1, sticky=tk.NSEW)
 
     def set_default_style(self) -> None:
         self.style = ttk.Style(self)
@@ -78,7 +64,9 @@ class MainWindow(tk.Tk):
                 name= f'{location.name}_ForecastViewer',
                 placement= GridPlacement(col=0, span={"col":2, "row": 1}, sticky=tk.NSEW)
             )
-
+            viewer_holder.columnconfigure(0, weight=1)
+            viewer_holder.columnconfigure(1, weight=1)
+            viewer_holder.rowconfigure(0, weight=1)
             self.forecast_viewers.add_frame(
                 frame= viewer_holder,
                 type= WidgetType.LABELFRAME,
@@ -87,7 +75,10 @@ class MainWindow(tk.Tk):
                 placement= GridPlacement(sticky=tk.NSEW)
             )
         self.forecast_viewers.grid(column=0, row=0, sticky=tk.NSEW)
-        print('-----\nDone creating nested notebooks')
+        self.forecast_viewers.columnconfigure(0, weight=1)
+        self.forecast_viewers.rowconfigure(0, weight=1)
+        self.columnconfigure(0,weight=1)
+        self.rowconfigure(0,weight=1)
 
     def create_notebooks_manually(self) -> None:
         self.forecast_viewers = Notebook(self)

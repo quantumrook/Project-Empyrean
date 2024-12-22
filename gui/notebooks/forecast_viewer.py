@@ -1,4 +1,5 @@
 from cProfile import label
+from distutils.fancy_getopt import wrap_text
 from itertools import zip_longest
 import tkinter as tk
 from tkinter import Widget, messagebox
@@ -24,6 +25,7 @@ class ForecastViewer_Notebook(Notebook):
         self.download_manager = None
 
         super().__init__(container)
+        self.container = container
 
         self.sub_frame_names = [ ]
         self.sub_button_names = [ ]
@@ -118,6 +120,9 @@ class ForecastViewer_Notebook(Notebook):
     def _on_click_get_forecast(self):
 
         forecast_type = ForecastType.POINTS
+
+        # TODO:: Check if Points Data needs to be refreshed
+
         for type in [ForecastType.HOURLY, ForecastType.EXTENDED]:
             if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
                 forecast_type = type
@@ -194,8 +199,10 @@ class ForecastViewer_Notebook(Notebook):
 
                 counter += 1
 
-        for r in range(1, counter + 1):
-                self.subframes[forecast_type.value.title()][WidgetType.LABELFRAME].rowconfigure(r, weight=1)
+        for subframe_name in self.sub_frame_names:
+            if subframe_name == f'{self.location.alias}{forecast_type.value.title()}':
+                for r in range(1, counter + 1):
+                        self.subframes[subframe_name][WidgetType.LABELFRAME].rowconfigure(r, weight=1)
 
         self.set_content(
                 content= forecast_as_str,
@@ -203,22 +210,25 @@ class ForecastViewer_Notebook(Notebook):
             )
     
     def set_content(self, content: list[str ], placements: list[GridPlacement]) -> None:
-        print(self.current_tab)
+        print(f'Updating content on {self.current_tab}')
+        for frame_name in list(self.subframes.keys()):
+            print(frame_name, self.subframes[frame_name][WidgetType.LABELFRAME])
+        
         frame_to_update = self.subframes[self.current_tab][WidgetType.LABELFRAME]
-
-        print(f'Updating {super().current_tab} {self.current_tab}')
         
         if WidgetType.LABEL not in frame_to_update.keys():
             label_index = 0
+            column_width = round(self.container.container.winfo_width() * 2 / 5)
             for line, place in zip(content, placements):
                 variable_string = tk.StringVar()
                 variable_string.set(line)
                 frame_to_update.add_changing_Label(
-                    widget= tk.Label(frame_to_update, text=line, borderwidth=1, relief="groove", anchor="e"),
+                    widget= tk.Label(frame_to_update, text=line, borderwidth=1, relief="groove", anchor="e", wraplength=column_width),
                     widget_type= WidgetType.LABEL,
                     widget_name= f"{self.location.alias}: Content {label_index}-{self.current_tab}",
                     placement= place,
-                    variable_string= variable_string
+                    variable_string= variable_string,
+                    wrap_text= True
                 )
         else:
             label_aliases = [f'{self.location.alias}: Content {i}-{self.current_tab}' for i in range(1,len(content)+1)]
@@ -226,3 +236,4 @@ class ForecastViewer_Notebook(Notebook):
         
     def _on_click_get_markdown(self):
         print(f'Current view: {self.location.alias}: {self.current_tab}')
+        print("Not implemented yet!")

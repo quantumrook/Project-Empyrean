@@ -45,7 +45,7 @@ class LabelFrame(ttk.Labelframe):
             sticky = placement.sticky
         )
 
-    def add_changing_Label(self, widget, widget_type: WidgetType, widget_name: str, placement: GridPlacement, variable_string: tk.StringVar) -> None:
+    def add_changing_Label(self, widget, widget_type: WidgetType, widget_name: str, placement: GridPlacement, variable_string: tk.StringVar, wrap_text: bool) -> None:
         if widget_type not in self.widgets.keys():
             self.widgets[widget_type] = { }
         self.display_label_vars[widget_name] = variable_string

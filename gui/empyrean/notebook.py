@@ -8,6 +8,8 @@ class Notebook(ttk.Notebook):
     def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }) -> None:
         super().__init__(container)
 
+        self.container = container
+
         self.subframes = { }
         self.current_tab = None
         self.previous_tab = None

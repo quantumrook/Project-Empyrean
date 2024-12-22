@@ -3,22 +3,21 @@ import tkinter.ttk as ttk
 
 from gui.empyrean.labelframe import LabelFrame
 
+
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
+from utils.json.location import Location
 
 
 class ForecastAlertInfo_LabelFrame(LabelFrame):
 
-    _title = "Weather Alert Info for"
-
-    def __init__(self, container) -> None:
+    def __init__(self, container, location: Location) -> None:
         super().__init__(container)
+        self._title = "Weather Alert Info for"
+        self._location = location
 
         self.__add_content()
-        self.update_title(f'{self._title} <Location>')
-
-        if self.container.locations:
-            self.update_title(f'{self._title} {self.container.locations[0].name}')
+        self.update_title(f'{self._title} {self._location.name}')
 
     def __add_content(self):
         dummy_text = "N/A"

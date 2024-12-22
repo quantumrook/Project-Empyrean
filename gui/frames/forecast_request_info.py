@@ -5,20 +5,18 @@ from gui.empyrean.labelframe import LabelFrame
 
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
+from utils.json.location import Location
 
 
 class ForecastRequestInfo_LabelFrame(LabelFrame):
 
-    _title = "Forecast Info for"
-
-    def __init__(self, container) -> None:
+    def __init__(self, container, location: Location) -> None:
         super().__init__(container)
-        self.__add_content()
-        self.update_title(f'{self._title} <Location>')
 
-        if self.container.locations:
-            self.update_title(f'{self._title} {self.container.locations[0].name}')
-        
+        self._location = location
+        self._title = "Forecast Info for"
+        self.__add_content()
+        self.update_title(f'{self._title} {self._location.name}')
 
     def __add_content(self):
         dummy_text = "YYYY-MM-DD HH:MM"

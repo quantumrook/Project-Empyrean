@@ -7,15 +7,13 @@ from utils.WidgetEnum import *
 
 class LabelFrame(ttk.Labelframe):
 
-    container = None
-    subframes = { }
-    widgets = { }
-    display_label_vars = { }
-
     def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }, title: str = '' ) -> None:
         super().__init__(container)
 
         self.container = container
+        self.subframes = { }
+        self.widgets = { }
+        self.display_label_vars = { }
 
         for widget_type in WidgetType.list():
             self.widgets[widget_type] = { }

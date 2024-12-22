@@ -5,12 +5,12 @@ from utils.WidgetEnum import *
 
 class Notebook(ttk.Notebook):
 
-    subframes = { }
-    current_tab = None
-    previous_tab = None
-
     def __init__(self, container, padding: dict[str, int] = { }, ipadding: dict[str, int] = { }) -> None:
         super().__init__(container)
+
+        self.subframes = { }
+        self.current_tab = None
+        self.previous_tab = None
 
         if padding == False:
             padding = self.get_default_padding()
@@ -23,11 +23,11 @@ class Notebook(ttk.Notebook):
         self.bind('<<NotebookTabChanged>>', self.on_tab_change)
         
 
-    def add_frame(self, frame, type: WidgetType, name: str, placement: GridPlacement) -> None:
-        if name not in list(self.subframes.keys()):
-            self.subframes[name] = { type: None}
-        self.subframes[name][type] = frame
-        self.subframes[name][type].grid(
+    def add_frame(self, frame, type: WidgetType, subframe_name: str, frame_title: str, placement: GridPlacement) -> None:
+        if subframe_name not in list(self.subframes.keys()):
+            self.subframes[subframe_name] = { type: None}
+        self.subframes[subframe_name][type] = frame
+        self.subframes[subframe_name][type].grid(
             column= placement.col,
             columnspan = placement.span["col"],
             row= placement.row,
@@ -35,12 +35,14 @@ class Notebook(ttk.Notebook):
             sticky = placement.sticky
         )
 
-        self.add(frame, text=f'{name.title()}')
+        self.add(frame, text=frame_title)
 
     def on_tab_change(self, event):
-        self.previous_tab = self.current_tab
-        self.current_tab = event.widget.tab('current')['text']
-        print(self.previous_tab, self.current_tab)
+        pass
+        # print(f'\t\tsuper.on_tab_change')
+        # self.previous_tab = self.current_tab
+        # self.current_tab = event.widget.tab('current')['text']
+        # print(f'\t\t{self.previous_tab=}, {self.current_tab=}')
 
     def get_default_padding() -> dict[str, int]:
         return { 'padx' : 5, 'pady' : 5}

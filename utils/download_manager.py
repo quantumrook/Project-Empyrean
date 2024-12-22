@@ -149,7 +149,11 @@ class ForecastDownloader(tk.Toplevel):
     def save_download(self, download_thread: ForecastDownload):
         download_thread.status = DownloadStatus.SAVING_DATA
         time.sleep(1)
-        self.forecast_to_save = Forecast(download_thread.response_json["properties"])
+        if (download_thread.forecast_type == ForecastType.POINTS):
+            # TODO:: update private.json with data from this request
+            print("Requested Point Data, faking save")
+        else:
+            self.forecast_to_save = Forecast(download_thread.response_json["properties"])
         save_forecast_data(download_thread.location, download_thread.forecast_type, self.forecast_to_save)
         time.sleep(1)
         download_thread.status = DownloadStatus.SAVE_COMPLETE

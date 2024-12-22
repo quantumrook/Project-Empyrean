@@ -27,8 +27,8 @@ class EmpyreanDateTime():
             self.__convert_datetime_to_object(from_datetime)
         else:
             now_str = datetime.strftime(datetime.now(), self.datetime_format)
-            self.date_time = datetime.strp(now_str, self.datetime_format)
-            self.date, self.time = datetime.strftime(self.date_time, self.date_time).split(' ')
+            self.date_time = datetime.strptime(now_str, self.datetime_format)
+            self.date, self.time = now_str.split(' ')
 
     def __convert_str_datetime_to_object(self, generating_str: str)->None:
         if 'T' in generating_str:

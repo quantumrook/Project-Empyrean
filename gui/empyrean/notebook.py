@@ -21,6 +21,7 @@ class Notebook(ttk.Notebook):
         self.configure(cnf=options)
 
         self.bind('<<NotebookTabChanged>>', self.on_tab_change)
+        
 
     def add_frame(self, frame, type: WidgetType, name: str, placement: GridPlacement) -> None:
         if name not in list(self.subframes.keys()):
@@ -36,6 +37,11 @@ class Notebook(ttk.Notebook):
 
         self.add(frame, text=f'{name.title()}')
 
+    def on_tab_change(self, event):
+        self.previous_tab = self.current_tab
+        self.current_tab = event.widget.tab('current')['text']
+        print(self.previous_tab, self.current_tab)
+
     def get_default_padding() -> dict[str, int]:
         return { 'padx' : 5, 'pady' : 5}
 
@@ -49,8 +55,3 @@ class Notebook(ttk.Notebook):
             widget_name = widget_name,
             placement   = placement
         )
-
-    def on_tab_change(self, event):
-        self.previous_tab = self.current_tab
-        self.current_tab = event.widget.tab('current')['text']
-

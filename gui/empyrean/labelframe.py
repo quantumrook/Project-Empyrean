@@ -8,6 +8,7 @@ from utils.WidgetEnum import *
 class LabelFrame(ttk.Labelframe):
 
     container = None
+    subframes = { }
     widgets = { }
     display_label_vars = { }
 
@@ -56,9 +57,22 @@ class LabelFrame(ttk.Labelframe):
             columnspan = placement.span["col"],
             row= placement.row,
             rowspan = placement.span["row"],
+            sticky = placement.sticky,
+            padx=5,
+            pady=5
+        )
+    
+    def add_frame(self, frame, type: WidgetType, name: str, placement: GridPlacement) -> None:
+        if name not in list(self.subframes.keys()):
+            self.subframes[name] = { type: None}
+        self.subframes[name][type] = frame
+        self.subframes[name][type].grid(
+            column= placement.col,
+            columnspan = placement.span["col"],
+            row= placement.row,
+            rowspan = placement.span["row"],
             sticky = placement.sticky
         )
-        
 
     def update_title(self, new_title: str)-> None:
         self.configure(text=new_title)

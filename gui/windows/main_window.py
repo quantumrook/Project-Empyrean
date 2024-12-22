@@ -34,7 +34,7 @@ class MainWindow(tk.Tk):
         alert_info = ForecastAlertInfo_LabelFrame(self)
         alert_info.grid(column=1, row=0,sticky=tk.NW)
 
-        forecast_viewer = ForecastViewer_Notebook(self, self.locations[0])
+        forecast_viewer = ForecastViewer_Notebook(self, self.locations[-1])
         forecast_viewer.grid(column=0, columnspan=2, row=1, sticky=tk.NSEW)
 
     def set_default_style(self) -> None:

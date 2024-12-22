@@ -21,7 +21,12 @@ class WindData():
     direction   : str
 
     def __init__(self, forecast_data: dict[str, Any]) -> None:
-        self.value, self.unit = forecast_data["windSpeed"].split(' ')
+        wind_line = forecast_data["windSpeed"].split(' ')
+        if len(wind_line) > 2:
+            low_speed, to, highspeed, self.unit = wind_line
+            self.value = round((int(highspeed) + int(low_speed))/2)
+        else:
+            self.value, self.unit = forecast_data["windSpeed"].split(' ')
         self.direction = forecast_data["windDirection"]
 
 @dataclass
@@ -95,7 +100,7 @@ class Forecast():
         self.forecasts = { }
         for period in forecast_data["periods"]:
             forecast = ForecastData(period)
-            self.forecasts[forecast.startTime.as_string()] = forecast
+            self.forecasts[forecast.startTime] = forecast
         
     def to_json(self):
         periods = { }

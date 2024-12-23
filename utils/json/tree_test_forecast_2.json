@@ -1,0 +1,48 @@
+[
+    {
+        "forecast_type": "hourly",
+        "units": "us",
+        "info" : {
+            "generatedAt": {
+                "date": "2024-12-23",
+                "time": "03:11"
+            },
+            "updateTime": {
+                "date": "2024-12-23",
+                "time": "02:53"
+            },
+            "validTimes": {
+                "date": "2024-12-23",
+                "time": "20:00"
+            },
+            "elevation": {
+                "unitCode": "wmoUnit:m",
+                "value": 1553.8704
+            }
+        },
+        "name" : "2024-12-22",
+        "open" : true,
+        "forecasts" : [
+            {
+                "name" : "20:00",
+                "temp" : "42 F",
+                "rain" : "5 %",
+                "wind" : "6 mph",
+                "direction" : "WNW",
+                "icon": "https://api.weather.gov/icons/land/night/ovc?size=small",
+                "shortForecast": "Cloudy",
+                "detailedForecast": "Rain showers before 7pm, then showers and thunderstorms between 7pm and 1am, then areas of fog and a chance of rain showers. Mostly cloudy. Low around 42, with temperatures rising to around 44 overnight. South wind 3 to 8 mph. Chance of precipitation is 100%. New rainfall amounts between a tenth and quarter of an inch possible."
+            },
+            {
+                "name" : "21:00",
+                "temp" : "41 F",
+                "rain" : "12 %",
+                "wind" : "6 mph",
+                "direction" : "NW",
+                "icon": "https://api.weather.gov/icons/land/night/ovc?size=small",
+                "shortForecast": "Cloudy",
+                "detailedForecast": "Rain showers before 7pm, then showers and thunderstorms between 7pm and 1am, then areas of fog and a chance of rain showers. Mostly cloudy. Low around 42, with temperatures rising to around 44 overnight. South wind 3 to 8 mph. Chance of precipitation is 100%. New rainfall amounts between a tenth and quarter of an inch possible."
+            }
+        ]
+    }
+]

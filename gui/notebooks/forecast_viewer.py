@@ -179,8 +179,13 @@ class ForecastViewer_Notebook(Notebook):
             for line, place in zip(content, placements):
                 variable_string = tk.StringVar()
                 variable_string.set(line)
+                anchor = "w"
+                if label_index % 2 == 1:
+                    anchor = "e"
+                else:
+                    anchor = "w"
                 frame_to_update.add_changing_Label(
-                    widget= tk.Label(frame_to_update, text=line, borderwidth=1, relief="groove", anchor="e", wraplength=column_width),
+                    widget= tk.Label(frame_to_update, text=line, borderwidth=1, relief="groove", anchor=anchor, wraplength=column_width),
                     widget_type= WidgetType.LABEL,
                     widget_name= f"{self.location.alias}: Content {label_index}-{self.current_tab}",
                     placement= place,

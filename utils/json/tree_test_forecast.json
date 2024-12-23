@@ -1,0 +1,62 @@
+[
+    {
+        "forecast_type": "hourly",
+        "units": "us",
+        "generatedAt": {
+            "date": "2024-12-23",
+            "time": "03:11"
+        },
+        "updateTime": {
+            "date": "2024-12-23",
+            "time": "02:53"
+        },
+        "validTimes": {
+            "date": "2024-12-23",
+            "time": "20:00"
+        },
+        "elevation": {
+            "unitCode": "wmoUnit:m",
+            "value": 1553.8704
+        },
+        "periods": [
+            {
+                "number": 1,
+                "name": "",
+                "startTime" : {
+                    "date": "2024-12-22",
+                    "time": "20:00"
+                },
+                "endTime": {
+                    "date": "2024-12-22",
+                    "time": "21:00"
+                },
+                "isDaytime" : false,
+                "temperature" : {
+                    "value": 42,
+                    "unitCode": "F",
+                    "trend": ""
+                },
+                "probabilityOfPrecipitation" : {
+                    "unitCode": "wmoUnit:percent",
+                    "value": 5
+                },
+                "dewpoint": {
+                    "unitCode": "wmoUnit:degC",
+                    "value": -4.444444444444445
+                },
+                "relativeHumidity": {
+                    "unitCode": "wmoUnit:percent",
+                    "value": 48
+                },
+                "windSpeed": {
+                    "unitCode": "wmoUnit:mph",
+                    "value": 6,
+                    "direction": "WNW"
+                },
+                "icon": "https://api.weather.gov/icons/land/night/ovc?size=small",
+                "shortForecast": "Cloudy",
+                "detailedForecast": ""
+            }
+        ]
+    }
+]

@@ -25,20 +25,11 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     current_location_index = -1
 
     def __init__(self, theme, mode, usecommandlineargs=True, usethemeconfigfile=True):
-        super().__init__("Project Empyrean", theme, mode, usecommandlineargs=usecommandlineargs,
-                        useconfigfile=usethemeconfigfile)
-
-        # self.set_default_style()
+        super().__init__("Project Empyrean", theme, mode, usecommandlineargs=usecommandlineargs, useconfigfile=usethemeconfigfile)
         self.load_private_data()
         self.create_notebook_for_locations()
 
         self.run()
-
-    def set_default_style(self) -> None:
-        self.style = ttk.Style(self)
-        self.style.configure('.',                   font=('Tahmoa', 10))
-        self.style.configure('TLabelframe.Label',   font=('Tahoma', 11))
-        self.style.configure('TNotebook.Tab',       font=('Tahoma', 11))
 
     def load_private_data(self) -> None:
         self.locations = get_private_data(filename=f'{project_directory_path}\\Project-Empyrean\\utils\\private.json')
@@ -92,5 +83,3 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.forecast_viewers.grid(column=0, row=0, sticky=tk.NSEW)
         self.forecast_viewers.columnconfigure(0, weight=1)
         self.forecast_viewers.rowconfigure(0, weight=1)
-        # self.columnconfigure(0,weight=1)
-        # self.rowconfigure(0,weight=1)

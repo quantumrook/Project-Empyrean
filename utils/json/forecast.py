@@ -72,7 +72,7 @@ class ForecastData():
                 "value"     : self.probabilityOfPrecipitation
             },
             "windSpeed"                     : f'{self.wind.value} {self.wind.unit}',
-            "windUnit"                      : self.wind.direction,
+            "windDirection"                      : self.wind.direction,
             "icon"                          : self.icon,
             "shortForecast"                 : self.short,
             "detailedForecast"              : self.detailed

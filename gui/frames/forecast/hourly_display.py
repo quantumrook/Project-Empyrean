@@ -1,71 +1,28 @@
+import tkinter as tk
 
 import TKinterModernThemes as TKMT
+from utils.json.location import Location
 
-from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
-from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
-
-from utils.download_manager import ForecastType
+from utils.private import project_directory_path
 from utils.json.forecast import Forecast
-from utils.json.private_reader import *
-from utils.private import *
+from utils.json.private_reader import get_test_data
 from utils.text_wrapper import *
 
+class Hourly_DisplayFrame(TKMT.WidgetFrame):
+    def __init__(self, master, name: str, forecast: Forecast, location: Location):
+        super().__init__(master, name)
 
+        self.forecast: Forecast = forecast
+        self.location: Location = location
 
-class MainWindow(TKMT.ThemedTKinterFrame):
-
-    locations: list[Location] = [ ]
-    current_location_index = -1
-
-    def __init__(self, theme, mode, usecommandlineargs=True, usethemeconfigfile=True):
-        super().__init__("Project Empyrean", theme, mode, usecommandlineargs=usecommandlineargs, useconfigfile=usethemeconfigfile)
-
-        self.locations: list[Location] = [ ]
-        self.forecasts: dict[str, dict[ForecastType, Forecast]] = { }
-        self.load_private_data()
-
-        self.frame = self.addFrame('forecastStuff')
-        #self.forecast_hourly_display = Forecast_Hourly_DisplayFrame(self, 'ForecastDisplayClass', None, self.locations[0])
-        self.add_forecast_notebook()
-        self.run()
-
-    def load_private_data(self) -> None:
-        self.locations = get_private_data(filename=f'{project_directory_path}\\Project-Empyrean\\utils\\private.json')
-        forecasts = None
-        for location in self.locations:
-            self.forecasts[location.alias] = { }
-            for forecast_type in [ForecastType.HOURLY, ForecastType.EXTENDED]:
-                self.forecasts[location.alias][forecast_type] = None
+        self.json_data = get_test_data(f'{project_directory_path}\\Project-Empyrean\\utils\\json\\tree_test_forecast.json')
         
-    def add_forecast_notebook(self) -> None:
-        self.forecast_notebook = self.frame.Notebook(
-                name = "",
-                row = 0,
-                col = 0,
-                sticky = "nsew"
-            )
-
-        self.forecast_notebooks = { }
-
-        forecast_types = [ForecastType.HOURLY, ForecastType.EXTENDED]
-        for location in self.locations:
-            frame = self.forecast_notebook.addTab(f"{location.name}")
-            self.forecast_notebooks[f'{location.alias}'] = frame.Notebook(
-                name = f"sub{location.alias}",
-                row=0,
-                col=0,
-                sticky = "nsew"
-            )
-            for forecast_type in forecast_types:
-                subframe = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
-                match forecast_type:
-                    case ForecastType.HOURLY:
-                        hourly_frame = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', None, location)
-                    case ForecastType.EXTENDED:
-                        continue
+        self._setup_info_display()
+        self._setup_tree_display()
+        self.master.info_frame.makeResizable()
 
     def _setup_info_display(self) -> None:
-
+        
         forecast_type = self.json_data[0]["forecast_type"].title()
 
         wrapping_str = format_text_as_wrapped(
@@ -137,3 +94,4 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                 rowspan = 1,
                 sticky = tk.EW
             )
+        

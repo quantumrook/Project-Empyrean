@@ -61,7 +61,8 @@ class ForecastViewer_Notebook(Notebook):
             button_widget.configure(command = None)
 
     def on_tab_change(self, event):
-        self.unbind_buttons()
+        if self.control_buttons is not None:
+            self.unbind_buttons()
         tab_event_name = f'{self.location.alias}' + event.widget.tab('current')['text']
         tab_hourly_name = f'{self.location.alias}' + f'{ForecastType.HOURLY.value.title()}'
         tab_extended_name = f'{self.location.alias}' + f'{ForecastType.EXTENDED.value.title()}'
@@ -72,7 +73,8 @@ class ForecastViewer_Notebook(Notebook):
             self.current_tab = tab_hourly_name
         elif tab_event_name == tab_extended_name:
             self.current_tab = tab_extended_name
-        self.bind_buttons()
+        if self.control_buttons is not None:
+            self.bind_buttons()
 
     def _on_click_get_forecast(self):
 
@@ -94,15 +96,6 @@ class ForecastViewer_Notebook(Notebook):
             self.download_manager.start_download(location=self.location, forecast_request_type=forecast_type)
         else:
             messagebox.showerror("Download in progress", "Please wait for the current download to finish before requesting another.")
-
-    def _monitor_download_manager(self):
-        if self.download_manager.download_status == DownloadStatus.SAVE_COMPLETE:
-            print("Save Complete - Displaying data.")
-            self.update_forecast(self.download_manager.forecast_to_save, self.download_manager.forecast_type)
-            self.download_manager.destroy()
-            self.download_manager = None
-        else:
-            self.after(1000, self._monitor_download_manager)
 
     def _monitor_download_manager(self):
         if self.download_manager.download_status == DownloadStatus.SAVE_COMPLETE:

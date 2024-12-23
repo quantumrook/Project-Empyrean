@@ -1,7 +1,4 @@
-from decimal import ROUND_UP
-from re import I
 import tkinter as tk
-from tkinter import ttk
 
 import TKinterModernThemes as TKMT
 from utils.json.location import Location
@@ -11,7 +8,7 @@ from utils.json.forecast import Forecast
 from utils.json.private_reader import get_test_data
 from utils.text_wrapper import *
 
-class Forecast_DisplayFrame(TKMT.WidgetFrame):
+class Extended_DisplayFrame(TKMT.WidgetFrame):
     def __init__(self, master, name: str, forecast: Forecast, location: Location):
         super().__init__(master, name)
 
@@ -25,7 +22,7 @@ class Forecast_DisplayFrame(TKMT.WidgetFrame):
         self.master.info_frame.makeResizable()
 
     def _setup_info_display(self) -> None:
-
+        
         forecast_type = self.json_data[0]["forecast_type"].title()
 
         wrapping_str = format_text_as_wrapped(
@@ -34,7 +31,7 @@ class Forecast_DisplayFrame(TKMT.WidgetFrame):
             number_of_characters_per_line= 80
         )
 
-        self.master.info_frame = self.master.addLabelFrame(f"{self.location.name}'s {forecast_type} Forecast")
+        self.master.info_frame = self.master.addFrame("")
         self.master.info_frame.Label(
             text=format_list_as_line_with_breaks(
                 list_to_compress= [

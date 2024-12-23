@@ -24,24 +24,11 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         self.treeview_widget = [ ]
 
-        # tree_data = get_test_data(f'{project_directory_path}\\Project-Empyrean\\utils\\json\\tree_test.json')
-
-        # self.example_tree(tree_data)
-        # self.tree_two()
-        print('here')
         self.frame = self.addFrame('forecastStuff')
         forecast_display = Forecast_DisplayFrame(self, 'ForecastDisplayClass', None, self.locations[0])
 
-        # self.forecast: Forecast = None
-        # self.location: Location = self.locations[0]
-
         self.json_data = get_test_data(f'{project_directory_path}\\Project-Empyrean\\utils\\json\\tree_test_forecast_3.json')
         
-        # print('info')
-        # self._setup_info_display()
-        # print('tree')
-        # self._setup_tree_display()
-        # print('run')
         self.run()
 
     def load_private_data(self) -> None:

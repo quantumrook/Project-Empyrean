@@ -2,60 +2,56 @@
     {
         "forecast_type": "hourly",
         "units": "us",
-        "generatedAt": {
-            "date": "2024-12-23",
-            "time": "03:11"
+        "info" : {
+            "generatedAt": {
+                "date": "2024-12-23",
+                "time": "03:11"
+            },
+            "updateTime": {
+                "date": "2024-12-23",
+                "time": "02:53"
+            },
+            "validTimes": {
+                "date": "2024-12-23",
+                "time": "20:00"
+            },
+            "elevation": {
+                "unitCode": "wmoUnit:m",
+                "value": 1553.8704
+            },
+            "short" : "Cloudy",
+            "long" : "Rain showers before 7pm, then showers and thunderstorms between 7pm and 1am, then areas of fog and a chance of rain showers. Mostly cloudy. Low around 42, with temperatures rising to around 44 overnight. South wind 3 to 8 mph. Chance of precipitation is 100%. New rainfall amounts between a tenth and quarter of an inch possible."
         },
-        "updateTime": {
-            "date": "2024-12-23",
-            "time": "02:53"
-        },
-        "validTimes": {
-            "date": "2024-12-23",
-            "time": "20:00"
-        },
-        "elevation": {
-            "unitCode": "wmoUnit:m",
-            "value": 1553.8704
-        },
-        "periods": [
+        "name" : "2024-12-22",
+        "open" : true,
+        "subdata" : [
             {
-                "number": 1,
-                "name": "",
-                "startTime" : {
-                    "date": "2024-12-22",
-                    "time": "20:00"
-                },
-                "endTime": {
-                    "date": "2024-12-22",
-                    "time": "21:00"
-                },
-                "isDaytime" : false,
-                "temperature" : {
-                    "value": 42,
-                    "unitCode": "F",
-                    "trend": ""
-                },
-                "probabilityOfPrecipitation" : {
-                    "unitCode": "wmoUnit:percent",
-                    "value": 5
-                },
-                "dewpoint": {
-                    "unitCode": "wmoUnit:degC",
-                    "value": -4.444444444444445
-                },
-                "relativeHumidity": {
-                    "unitCode": "wmoUnit:percent",
-                    "value": 48
-                },
-                "windSpeed": {
-                    "unitCode": "wmoUnit:mph",
-                    "value": 6,
-                    "direction": "WNW"
-                },
-                "icon": "https://api.weather.gov/icons/land/night/ovc?size=small",
-                "shortForecast": "Cloudy",
-                "detailedForecast": ""
+                "name" : "20:00",
+                "open" : true,
+                "subdata" : [
+                    {
+                        "name" : "Temperature",
+                        "value" : "42 F"
+                    },
+                    {
+                        "name" : "Rain Chance",
+                        "value" : "5 %"
+                    }
+                ]
+            },
+            {
+                "name" : "21:00",
+                "open" : true,
+                "subdata" : [
+                    {
+                        "name" : "Temperature",
+                        "value" : "41 F"
+                    },
+                    {
+                        "name" : "Rain Chance",
+                        "value" : "12 %"
+                    }
+                ]
             }
         ]
     }

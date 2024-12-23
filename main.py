@@ -7,4 +7,3 @@ if __name__ == "__main__":
 
     testWindow.MainWindow("park", "dark")
     #tw.MainWindow("park", "dark")
-    print("and quit")

@@ -1,12 +1,12 @@
 import tkinter as tk
 
 import TKinterModernThemes as TKMT
-from utils.forecast.location import Location
-
-from utils.private import project_directory_path
-from utils.json.forecast import Forecast
-from utils.json.private_reader import get_test_data
+from utils.private.private import directory_paths
+from utils.reader import get_test_data
+from utils.structures.forecast.forecast import Forecast
+from utils.structures.location.location import Location
 from utils.text_wrapper import *
+
 
 class Hourly_DisplayFrame(TKMT.WidgetFrame):
     def __init__(self, master, name: str, forecast: Forecast, location: Location):
@@ -15,7 +15,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         self.forecast: Forecast = forecast
         self.location: Location = location
 
-        self.json_data = get_test_data(f'{project_directory_path}\\Project-Empyrean\\utils\\json\\tree_test_forecast.json')
+        self.json_data = get_test_data(f'{directory_paths["json"]}\\tree_test_forecast.json')
         
         self._setup_info_display()
         self._setup_tree_display()

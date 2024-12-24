@@ -1,13 +1,12 @@
 import tkinter as tk
 
-from PIL import Image, ImageTk
-
 from gui.empyrean.labelframe import LabelFrame
 from gui.icons.icons import icons
+from gui.widget_enum import WidgetType
+from PIL import Image, ImageTk
+from utils.structures.grid_placement import GridPlacement
+from utils.structures.location.location import Location
 
-from utils.WidgetEnum import WidgetType
-from utils.gridplacement import GridPlacement
-from utils.forecast.location import Location
 
 class ForecastButtons_LabelFrame(LabelFrame):
 

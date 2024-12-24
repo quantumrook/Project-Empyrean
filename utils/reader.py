@@ -1,6 +1,7 @@
 import json
 
-from utils.forecast.location import Location
+from utils.structures.location.location import Location
+
 
 def get_private_data(filename: str):
     with open(filename) as file:

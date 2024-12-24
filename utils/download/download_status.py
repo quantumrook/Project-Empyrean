@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class DownloadStatus(Enum):
     INSTANTIATING                   = 0
     INITIALIZING                    = 1

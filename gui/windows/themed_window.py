@@ -1,22 +1,16 @@
 import tkinter as tk
-from tkinter import ttk
 
 import TKinterModernThemes as TKMT
-
 from gui.empyrean.labelframe import LabelFrame
 from gui.empyrean.notebook import Notebook
-
 from gui.frames.forecast_alert_info import ForecastAlertInfo_LabelFrame
 from gui.frames.forecast_buttons import ForecastButtons_LabelFrame
 from gui.frames.forecast_request_info import ForecastRequestInfo_LabelFrame
-
 from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
-
-from utils.WidgetEnum import WidgetType
-from utils.gridplacement import GridPlacement
-
-from utils.private import *
-from utils.json.private_reader import *
+from gui.widget_enum import WidgetType
+from utils.private.private import directory_paths
+from utils.reader import *
+from utils.structures.grid_placement import GridPlacement
 
 
 class MainWindow(TKMT.ThemedTKinterFrame):
@@ -32,7 +26,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.run()
 
     def load_private_data(self) -> None:
-        self.locations = get_private_data(filename=f'{project_directory_path}\\Project-Empyrean\\utils\\private.json')
+        self.locations = get_private_data(filename=f'{directory_paths["private"]}\\private.json')
     
     def create_notebook_for_locations(self) -> None:
         self.forecast_viewers = Notebook(self.master)

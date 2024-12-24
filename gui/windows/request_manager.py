@@ -4,13 +4,13 @@ import tkinter as tk
 from tkinter import END, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
-from utils.json.forecast import Forecast
-from utils.forecast.location import Location
-from utils.json.private_writer import save_forecast_data
-from utils.download.request_type import RequestType
 from utils.download.download_status import DownloadStatus
-
 from utils.download.request_thread import RequestThread
+from utils.download.request_type import RequestType
+from utils.structures.forecast.forecast import Forecast
+from utils.structures.location.location import Location
+from utils.writer import save_forecast_data
+
 
 class RequestThreadManager_Window(tk.Toplevel):
 

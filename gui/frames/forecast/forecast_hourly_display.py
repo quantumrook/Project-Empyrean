@@ -8,7 +8,7 @@ from utils.structures.location.location import Location
 from utils.text_wrapper import *
 
 
-class Extended_DisplayFrame(TKMT.WidgetFrame):
+class Forecast_Hourly_DisplayFrame(TKMT.WidgetFrame):
     def __init__(self, master, name: str, forecast: Forecast, location: Location):
         super().__init__(master, name)
 

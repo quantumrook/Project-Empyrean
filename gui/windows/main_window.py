@@ -1,22 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
 
-import TKinterModernThemes as TKMT
-
 from gui.empyrean.labelframe import LabelFrame
 from gui.empyrean.notebook import Notebook
-
 from gui.frames.forecast_alert_info import ForecastAlertInfo_LabelFrame
 from gui.frames.forecast_buttons import ForecastButtons_LabelFrame
 from gui.frames.forecast_request_info import ForecastRequestInfo_LabelFrame
-
 from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
-
-from utils.WidgetEnum import WidgetType
-from utils.gridplacement import GridPlacement
-
-from utils.private import *
-from utils.json.private_reader import *
+from gui.widget_enum import WidgetType
+from utils.private.private import *
+from utils.reader import *
+from utils.structures.grid_placement import GridPlacement
 
 
 class MainWindow(tk.Tk):

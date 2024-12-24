@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class RequestType(Enum):
     POINTS      = 'points'
     HOURLY      = 'hourly'

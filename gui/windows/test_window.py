@@ -1,13 +1,14 @@
 
-import TKinterModernThemes as TKMT
 import tkinter as tk
-from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
 
-from utils.forecast.forecast_type import ForecastType
-from utils.json.forecast import Forecast
-from utils.json.private_reader import *
-from utils.private import *
+import TKinterModernThemes as TKMT
+from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
+from utils.private.private import *
+from utils.reader import *
+from utils.structures.forecast.forecast import Forecast
+from utils.structures.forecast.forecast_type import ForecastType
 from utils.text_wrapper import *
+
 
 class MainWindow(TKMT.ThemedTKinterFrame):
 

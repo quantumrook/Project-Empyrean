@@ -7,7 +7,7 @@ import requests
 from utils.download.download_status import DownloadStatus
 from utils.download.html_status import HTMLStatusCode
 from utils.download.request_type import RequestType
-from utils.forecast.location import Location
+from utils.structures.location.location import Location
 
 
 class RequestThread(Thread):

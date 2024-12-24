@@ -1,7 +1,7 @@
 import tkinter as tk
 
 import TKinterModernThemes as TKMT
-from utils.json.location import Location
+from utils.forecast.location import Location
 
 from utils.private import project_directory_path
 from utils.json.forecast import Forecast

@@ -2,9 +2,8 @@
 import TKinterModernThemes as TKMT
 import tkinter as tk
 from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
-from gui.notebooks.forecast_viewer import ForecastViewer_Notebook
 
-from utils.download_manager import ForecastType
+from utils.forecast.forecast_type import ForecastType
 from utils.json.forecast import Forecast
 from utils.json.private_reader import *
 from utils.private import *

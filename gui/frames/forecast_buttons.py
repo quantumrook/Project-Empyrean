@@ -7,7 +7,7 @@ from gui.icons.icons import icons
 
 from utils.WidgetEnum import WidgetType
 from utils.gridplacement import GridPlacement
-from utils.json.location import Location
+from utils.forecast.location import Location
 
 class ForecastButtons_LabelFrame(LabelFrame):
 

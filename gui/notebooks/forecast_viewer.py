@@ -2,21 +2,22 @@ import tkinter as tk
 from tkinter import messagebox
 
 from gui.empyrean.datetime import EmpyreanDateTime
-
-from gui.empyrean.notebook import Notebook
 from gui.empyrean.labelframe import LabelFrame
-
-from utils.download_manager import DownloadStatus, ForecastDownloader, ForecastType
-from utils.WidgetEnum import WidgetType
+from gui.empyrean.notebook import Notebook
+from gui.windows.request_manager import *
+from utils.download.download_status import *
+from utils.forecast.forecast_type import *
+from utils.forecast.location import *
 from utils.gridplacement import GridPlacement
 from utils.json.forecast import Forecast
-from utils.json.location import Location
+from utils.WidgetEnum import WidgetType
+
 
 class ForecastViewer_Notebook(Notebook):
 
     def __init__(self, container, location: Location, control_buttons: list[tk.Button]) -> None:
         self.location = location
-        self.download_manager = None
+        self.request_window = None
 
         super().__init__(container)
         self.container = container
@@ -78,33 +79,37 @@ class ForecastViewer_Notebook(Notebook):
 
     def _on_click_get_forecast(self):
 
-        forecast_type = ForecastType.POINTS
+        request_type = RequestType.POINTS
 
         # TODO:: Check if Points Data needs to be refreshed
 
-        for type in [ForecastType.HOURLY, ForecastType.EXTENDED]:
+        for type in RequestType.get_list_of_types():
             if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
-                forecast_type = type
-        print(f'Forecast Request: {forecast_type.value} @ {self.location.alias}')
+                request_type = type
+        print(f'Forecast Request: {request_type.value} @ {self.location.alias}')
         # TODO:: Check if the forecast has already been downloaded (e.g., earlier today)
 
         # TODO:: Check if the forecast is still valid
 
-        if self.download_manager is None:
-            self.download_manager = ForecastDownloader()
-            self._monitor_download_manager()
-            self.download_manager.start_download(location=self.location, forecast_request_type=forecast_type)
+        if self.request_window is None:
+            self.request_window = RequestThreadManager_Window()
+            self._monitor_requests()
+            self.request_window.start_download(location=self.location, forecast_request_type=request_type)
         else:
             messagebox.showerror("Download in progress", "Please wait for the current download to finish before requesting another.")
 
-    def _monitor_download_manager(self):
-        if self.download_manager.download_status == DownloadStatus.SAVE_COMPLETE:
+    def _monitor_requests(self):
+        if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
-            self.update_forecast(self.download_manager.forecast_to_save, self.download_manager.forecast_type)
-            self.download_manager.destroy()
-            self.download_manager = None
+            forecast_type = self.request_window.request_type
+            for type in ForecastType.get_list_of_types():
+                if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
+                    forecast_type = type
+            self.update_forecast(self.request_window.forecast_to_save, forecast_type)
+            self.request_window.destroy()
+            self.request_window = None
         else:
-            self.after(1000, self._monitor_download_manager)
+            self.after(1000, self._monitor_requests)
 
     def update_forecast(self, forecast: Forecast, forecast_type: ForecastType):
         forecast_as_str = [ ]

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from utils.json.forecast import Forecast
-from utils.json.location import Location
+from utils.forecast.location import Location
 from utils.private import project_directory_path
 
 def save_private_data(filename: str):

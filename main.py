@@ -5,5 +5,5 @@ import gui.windows.test_window as testWindow
 
 if __name__ == "__main__":
 
-    testWindow.MainWindow("park", "dark")
-    #tw.MainWindow("park", "dark")
+    # testWindow.MainWindow("park", "dark")
+    tw.MainWindow("park", "dark")

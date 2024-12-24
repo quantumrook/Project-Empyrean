@@ -156,3 +156,4 @@ Forecasts/*
 utils/private.json
 utils/private.py
 gui/icons/*.png
+utils/json/raw_forecast_test.json

@@ -83,7 +83,7 @@ class ForecastViewer_Notebook(Notebook):
 
         # TODO:: Check if Points Data needs to be refreshed
 
-        for type in RequestType.get_list_of_types():
+        for type in RequestType.list():
             if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
                 request_type = type
         print(f'Forecast Request: {request_type.value} @ {self.location.alias}')

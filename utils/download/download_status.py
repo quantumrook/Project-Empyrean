@@ -19,5 +19,11 @@ class DownloadStatus(Enum):
     def max_value():
         return DownloadStatus.SAVE_COMPLETE.value
 
-    def as_log_str(self):
-        return self.name
+    @classmethod
+    def list(cls) -> list:
+        """
+        Returns all of the widget types as a list.
+
+        Source: https://stackoverflow.com/a/54919285
+        """
+        return list(map(lambda c: c.value, cls))

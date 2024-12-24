@@ -4,6 +4,11 @@ from pytz import timezone
 from utils.private.private import default_timezone
 
 
+class EmpyreanDateTimeKeys():
+    date: str = "date"
+    time: str = "time"
+    time_zone: str = "time_zone"
+
 class EmpyreanDateTime():
     datetime_format:    str
     date_time:          datetime
@@ -53,3 +58,10 @@ class EmpyreanDateTime():
     
     def as_string(self)->str:
         return datetime.strftime(self.date_time, self.datetime_format)
+
+    def as_dict(self) -> dict[str, str]:
+        return {
+            EmpyreanDateTimeKeys.date : self.date,
+            EmpyreanDateTimeKeys.time : self.time,
+            EmpyreanDateTimeKeys.time_zone : str(self.time_zone)
+        }

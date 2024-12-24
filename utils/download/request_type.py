@@ -6,5 +6,11 @@ class RequestType(Enum):
     HOURLY      = 'hourly'
     EXTENDED    = 'extended'
 
-    def get_list_of_types() -> list:
-        return [RequestType.POINTS, RequestType.HOURLY, RequestType.EXTENDED]
+    @classmethod
+    def list(cls) -> list:
+        """
+        Returns all of the widget types as a list.
+
+        Source: https://stackoverflow.com/a/54919285
+        """
+        return list(map(lambda c: c.value, cls))

@@ -1,13 +1,9 @@
 from dataclasses import dataclass
 from typing import Any
 
-@dataclass
-class UnitValueKeys():
-    unitCode = "unitCode"
-    value = "value"
 
-    def __init__(self, key) -> None:
-        self.key = key
+from utils.structures.json.unit_value import UnitValue, UnitValueKeys
+
 
 @dataclass
 class PeriodKeys():
@@ -37,26 +33,6 @@ class PropertiesKeys():
     validTimes = "validTimes"
     elevation = UnitValueKeys("elevation")
     periods = "periods"
-
-@dataclass
-class UnitValue():
-    unitCode: str
-    value: Any
-
-    def get_unit(self):
-        unitCode, unit = self.unitCode.split(':')
-        match unit:
-            case "percent":
-                unit = "%"
-            case "degC":
-                unit = "C"
-        return unit
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            UnitValueKeys.unitCode : self.unitCode,
-            UnitValueKeys.value : self.value
-        }
 
 class Period():
     number: int

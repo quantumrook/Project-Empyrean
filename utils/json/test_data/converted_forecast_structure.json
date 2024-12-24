@@ -1,0 +1,116 @@
+{
+    "frontmatter" : 
+    {
+        "type" : "",
+        "generated" :
+        {
+            "date" : "",
+            "time" : "",
+            "time_zone" : ""
+        },
+        "updated" :
+        {
+            "date" : "",
+            "time" : "",
+            "time_zone" : ""
+        },
+        "expiration" :
+        {
+            "date" : "",
+            "time" : "",
+            "time_zone" : ""
+        },
+        "elevation" : 
+        {
+            "unitCode" : "",
+            "value" : 0,
+            "valueType" : "FLOAT"
+        }
+    },
+    "forecasts" :
+    [
+        {
+            "start" : 
+            {
+                "date" : "",
+                "time" : "",
+                "time_zone" : ""
+            },
+            "end" : 
+            {
+                "date" : "",
+                "time" : "",
+                "time_zone" : ""
+            },
+            "properties" : 
+            {
+                "name" : "",
+                "isDaytime" : false,
+                "icon" : ""
+            },
+            "content" : 
+            {
+                "temperature" :
+                {
+                    "unitCode" : "",
+                    "value" : 0,
+                    "valueType" : "INTEGER"
+                },
+                "rainChance" :
+                {
+                    "unitCode" : "",
+                    "value" : 0,
+                    "valueType" : "INTEGER"
+                },
+                "dewPoint" :
+                {
+                    "unitCode" : "",
+                    "value" : 0,
+                    "valueType" : "INTEGER"
+                },
+                "relativeHumidity" :
+                {
+                    "unitCode" : "",
+                    "value" : 0,
+                    "valueType" : "INTEGER"
+                },
+                "wind" : 
+                {
+                    "speedLow" :
+                    {
+                        "unitCode" : "",
+                        "value" : 0,
+                        "valueType" : "INTEGER"
+                    },
+                    "speedHigh" :
+                    {
+                        "unitCode" : "",
+                        "value" : 0,
+                        "valueType" : "INTEGER"
+                    },
+                    "direction" :
+                    {
+                        "unitCode" : "",
+                        "value" : "",
+                        "valueType" : "STRING"
+                    }
+                },
+                "description":
+                {
+                    "short" :
+                    {
+                        "unitCode" : "",
+                        "value" : "",
+                        "valueType" : "STRING"
+                    },
+                    "long" :
+                    {
+                        "unitCode" : "",
+                        "value" : "",
+                        "valueType" : "STRING"
+                    }
+                }
+            }
+        }
+    ]
+}

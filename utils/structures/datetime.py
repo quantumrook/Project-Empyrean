@@ -1,67 +1,82 @@
 from datetime import datetime
+from typing import Self
 
+import pytz as tz
 from pytz import timezone
-from utils.private.private import default_timezone
+from utils.private.private import user_default_timezone
 
-
-class EmpyreanDateTimeKeys():
-    date: str = "date"
-    time: str = "time"
-    time_zone: str = "time_zone"
 
 class EmpyreanDateTime():
-    datetime_format:    str
-    date_time:          datetime
 
-    date:               str
-    time:               str
+    class Keys():
+        date: str = "date"
+        time: str = "time"
+        time_zone: str = "time_zone"
 
-    time_zone:          timezone
+    datetime_format:    str      = "%Y-%m-%d %H:%M"
+    default_timezone:   timezone = timezone(user_default_timezone)
 
-    def __init__(self, location_timezone: str = '', generating_str: str ='', from_datetime: datetime =None) -> None:
+    def __init__(self, location_timezone: str = '') -> None:
 
-        self.datetime_format = "%Y-%m-%d %H:%M"
-        self.default_timezone = timezone(default_timezone)
-
-        if location_timezone:
-            self.time_zone = timezone(location_timezone)
-        else:
-            self.time_zone = self.default_timezone
-
-        if generating_str:
-            self.__convert_str_datetime_to_object(generating_str)
-        elif from_datetime is not None:
-            self.__convert_datetime_to_object(from_datetime)
-        else:
-            now_str = datetime.strftime(datetime.now(), self.datetime_format)
-            self.date_time = datetime.strptime(now_str, self.datetime_format)
-            self.date, self.time = now_str.split(' ')
-
-    def __convert_str_datetime_to_object(self, generating_str: str)->None:
-        if 'T' in generating_str:
-            date_and_time, _, junk = generating_str.partition('+')
-            date, _, time = date_and_time.partition('T')
-            hour, minute, *unused_extra_precision = time.split(sep=':')
-            generating_str = f'{date} {hour}:{minute}'
+        self.date_time: datetime = None
+        self.date: str           = ""
+        self.time: str           = ""
+        self.time_zone: timezone = EmpyreanDateTime.default_timezone
         
-        self.date_time = self.time_zone.localize(datetime.strptime(generating_str, self.datetime_format))
-        if (self.default_timezone == self.time_zone) == False:
-            self.date_time = self.default_timezone.localize(self.date_time)
-        self.date, self.time = datetime.strftime(self.date_time, self.datetime_format).split(' ')
+        if location_timezone:
+            self.time_zone: timezone = timezone(location_timezone)
+            
+        #default to now, for the case where nothing is given
+        self.__localize(datetime.now())
+    
+    @staticmethod
+    def __localize(original_dt: datetime, instance: Self) -> None:
+        if (EmpyreanDateTime.default_timezone == instance.time_zone) == False:
+            #localize and account for DST
+            instance.date_time = tz.localize(original_dt).astimezone(instance.time_zone)
+            instance.date_time = tz.normalize(instance.date_time)
+            
+            # ensure datetime_format
+            generating_str = datetime.strftime(instance.date_time, EmpyreanDateTime.datetime_format)
+            instance.date_time = datetime.strptime(generating_str, EmpyreanDateTime.datetime_format)
+            instance.date, instance.time = generating_str.split(' ')
+        else:
+            generating_str = datetime.strftime(original_dt, EmpyreanDateTime.datetime_format)
+            instance.date_time = datetime.strptime(generating_str, EmpyreanDateTime.datetime_format)
+            instance.date, instance.time = generating_str.split(' ')
 
-    def __convert_datetime_to_object(self, original_datetime: datetime)->None:
-        formatted_datetime_str = datetime.strftime(original_datetime, self.datetime_format)
-        self.date_time = self.time_zone.localize(datetime.strptime(formatted_datetime_str, self.datetime_format))
-        if (self.default_timezone == self.time_zone) == False:
-            self.date_time = self.default_timezone.localize(self.date_time)
-        self.date, self.time = datetime.strftime(self.date_time, self.datetime_format).split(' ')
+    @staticmethod
+    def from_API(generating_str: str, location_timezone: str = '') -> Self:
+        new_instance = EmpyreanDateTime(location_timezone)
+        
+        date_and_time, _, junk = generating_str.partition('+') #TODO :: use this to better set the expiration time for extended forecasts
+        date, _, time = date_and_time.partition('T')
+        hour, minute, *unused_extra_precision = time.split(sep=':')
+        generating_str = f'{date} {hour}:{minute}'
+
+        EmpyreanDateTime.__localize(datetime.strptime(generating_str, EmpyreanDateTime.datetime_format), new_instance)
+        return new_instance
+
+    @staticmethod
+    def from_Empyrean(datetime_data: dict[str, str]) -> Self:
+        new_instance = EmpyreanDateTime(datetime_data[EmpyreanDateTime.Keys.time_zone])
+        generating_str = f'{datetime_data[EmpyreanDateTime.Keys.date]} {datetime_data[EmpyreanDateTime.Keys.time]}'
+
+        EmpyreanDateTime.__localize(datetime.strptime(generating_str, EmpyreanDateTime.datetime_format), new_instance)
+        return new_instance
+
+    @staticmethod
+    def from_datetime(original_datetime: datetime) -> Self:
+        new_instance = EmpyreanDateTime()
+        EmpyreanDateTime.__localize(original_datetime, new_instance)
+        return new_instance
     
     def as_string(self)->str:
         return datetime.strftime(self.date_time, self.datetime_format)
 
     def to_dict(self) -> dict[str, str]:
         return {
-            EmpyreanDateTimeKeys.date : self.date,
-            EmpyreanDateTimeKeys.time : self.time,
-            EmpyreanDateTimeKeys.time_zone : str(self.time_zone)
+            EmpyreanDateTime.Keys.date : self.date,
+            EmpyreanDateTime.Keys.time : self.time,
+            EmpyreanDateTime.Keys.time_zone : str(self.time_zone)
         }

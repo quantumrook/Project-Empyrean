@@ -1,14 +1,15 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from gui.empyrean.datetime import EmpyreanDateTime
+
 from gui.empyrean.labelframe import LabelFrame
 from gui.empyrean.notebook import Notebook
 from gui.widget_enum import WidgetType
 from gui.windows.request_manager import *
 from utils.download.download_status import *
+from utils.structures.datetime import EmpyreanDateTime
 from utils.structures.forecast.forecast import Forecast
-from utils.structures.forecast.forecast_type import *
+from utils.structures.forecast.forecast_type import ForecastType
 from utils.structures.grid_placement import GridPlacement
 from utils.structures.location.location import Location
 

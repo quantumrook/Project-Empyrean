@@ -22,7 +22,7 @@ class ForecastButtons_LabelFrame(LabelFrame):
         images = { }
         for icon_name, icon_path in icons.items():
             img = Image.open(icon_path)
-            img = img.resize((24, 24), Image.ANTIALIAS)
+            img = img.resize((24, 24), Image.Resampling.LANCZOS)
             images[icon_name] = ImageTk.PhotoImage(img)
 
         row_counter = 0

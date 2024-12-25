@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Any
+
+from utils.structures.empyrean_enum import EmpyreanEnum
 
 
 @dataclass
@@ -12,26 +12,10 @@ class UnitValueKeys():
     def __init__(self, key) -> None:
         self.key = key
 
-class Value_Type(Enum):
+class Value_Type(EmpyreanEnum):
     STRING = "STRING"
     INTEGER = "INTEGER"
     FLOAT = "FLOAT"
-
-    @classmethod
-    def list(cls) -> list:
-        """
-        Returns all of the widget types as a list.
-
-        Source: https://stackoverflow.com/a/54919285
-        """
-        return list(map(lambda c: c.value, cls))
-
-    @classmethod
-    def from_string(cls, value_type):
-        for type in cls.list():
-            if type.name == value_type:
-                return type
-        raise ValueError(f"Tried to convert {value_type=} to Value_Type.")
 
 @dataclass
 class UnitValue():
@@ -69,43 +53,44 @@ class UnitValue():
             UnitValueKeys.valueType : self.value_type.name
         }
 
-class Wind():
+
+class JSON_EmpyreanObject():
+    def __init__(self, keys: list[str]) -> None:
+        self.unitvalue_keys: list[UnitValueKeys] = [ ]
+        
+        for key in keys:
+            self.unitvalue_keys.append(UnitValueKeys(key))
+        
+        self.unitvalues: dict[str, UnitValue] = { }
+
+class PossibleWindImplementation(JSON_EmpyreanObject):
 
     def __init__(self, wind: dict[str, UnitValue]) -> None:
-        self.speedLowKeys: UnitValueKeys = UnitValueKeys("speedLow")
-        self.speedHighKeys: UnitValueKeys = UnitValueKeys("speedHigh")
-        self.directionKeys: UnitValueKeys = UnitValueKeys("direction")
+        super().__init__(keys=list(wind.keys()))
 
-        if wind[self.speedLowKeys.key]:
-            self.speedLow: UnitValue = UnitValue(wind[self.speedLowKeys.key])
-        
-        self.speedHigh: UnitValue = UnitValue(wind[self.speedHighKeys.key])
-        self.direction: UnitValue = UnitValue(wind[self.directionKeys.key])
+        for uv_key in self.unitvalue_keys:
+            self.unitvalues[uv_key.key] = UnitValue(wind[uv_key.key])
 
     def get_average(self) -> UnitValue:
+        average, num_added = 0
+        for unitvalue_key in self.unitvalue_keys:
+            if Value_Type.is_numeric(unitvalue_key.valueType):
+                average += self.unitvalues[unitvalue_key.key].get_value()
+                num_added += 1
+
         return UnitValue(
-            unitCode= self.speedHigh.unitCode,
-            value= round((self.speedHigh.value + self.speedLow.value)/ 2),
+            unitCode= self.unitvalues[self.unitvalue_keys[0].key].unitCode,
+            value= round(average/num_added),
             value_type= Value_Type.INTEGER
         )
 
     def to_dict(self) -> dict[str, dict[str, str]]:
-        as_dict = {
-                self.speedHighKeys.key : {
-                    self.speedHighKeys.unitCode : self.speedHigh.unitCode,
-                    self.speedHighKeys.value : self.speedHigh.value,
-                    self.speedHighKeys.valueType : self.speedHigh.value_type.name
-                },
-                self.directionKeys.key : {
-                    self.directionKeys.unitCode : self.direction.unitCode,
-                    self.directionKeys.value : self.direction.value,
-                    self.directionKeys.valueType : self.direction.value_type.name
-                }
-            }
-        if self.speedLow is not None:
-            as_dict[self.speedLowKeys.key] = {
-                    self.speedLowKeys.unitCode : self.speedLow.unitCode,
-                    self.speedLowKeys.value : self.speedLow.value,
-                    self.speedLowKeys.valueType : self.speedLow.value_type.name
+        as_dict = { }
+        for uv_key in self.unitvalue_keys:
+            if self.unitvalues[uv_key.key]:
+                as_dict[uv_key.key] = {
+                    uv_key.unitCode : self.unitvalues[uv_key.key].unitCode,
+                    uv_key.value    : self.unitvalues[uv_key.key].value,
+                    uv_key.valueType: self.unitvalues[uv_key.key].value_type.name
                 }
         return as_dict

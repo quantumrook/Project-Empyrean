@@ -1,9 +1,6 @@
-from enum import Enum
+from utils.structures.empyrean_enum import EmpyreanEnum
 
 
-class ForecastType(Enum):
+class ForecastType(EmpyreanEnum):
     HOURLY      = 'hourly'
     EXTENDED    = 'extended'
-
-    def get_list_of_types() -> list:
-        return [ForecastType.HOURLY, ForecastType.EXTENDED]

@@ -59,7 +59,7 @@ class EmpyreanDateTime():
     def as_string(self)->str:
         return datetime.strftime(self.date_time, self.datetime_format)
 
-    def as_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         return {
             EmpyreanDateTimeKeys.date : self.date,
             EmpyreanDateTimeKeys.time : self.time,

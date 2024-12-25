@@ -3,7 +3,7 @@ from typing import Any
 
 
 from utils.structures.datetime import EmpyreanDateTime
-from utils.structures.json.unit_value import UnitValue
+from utils.structures.json.unit_value import UnitValue, UnitValueKeys, Value_Type
 from utils.structures.forecast.forecast_type import ForecastType
 
 @dataclass
@@ -15,6 +15,48 @@ class JSON_Datetime():
 
     def to_EmpyreanDateTime(self) -> EmpyreanDateTime:
         return EmpyreanDateTime(location_timezone=self.time_zone, generating_str=f"{self.date} {self.time}")
+
+
+class Wind():
+
+    def __init__(self, wind: dict[str, UnitValue]) -> None:
+        self.speedLowKeys: UnitValueKeys = UnitValueKeys("speedLow")
+        self.speedHighKeys: UnitValueKeys = UnitValueKeys("speedHigh")
+        self.directionKeys: UnitValueKeys = UnitValueKeys("direction")
+
+        if wind[self.speedLowKeys.key]:
+            self.speedLow: UnitValue = UnitValue(wind[self.speedLowKeys.key])
+        
+        self.speedHigh: UnitValue = UnitValue(wind[self.speedHighKeys.key])
+        self.direction: UnitValue = UnitValue(wind[self.directionKeys.key])
+
+    def get_average(self) -> UnitValue:
+        return UnitValue(
+            unitCode= self.speedHigh.unitCode,
+            value= round((self.speedHigh.value + self.speedLow.value)/ 2),
+            value_type= Value_Type.INTEGER
+        )
+
+    def to_dict(self) -> dict[str, dict[str, str]]:
+        as_dict = {
+                self.speedHighKeys.key : {
+                    self.speedHighKeys.unitCode : self.speedHigh.unitCode,
+                    self.speedHighKeys.value : self.speedHigh.value,
+                    self.speedHighKeys.valueType : self.speedHigh.value_type.name
+                },
+                self.directionKeys.key : {
+                    self.directionKeys.unitCode : self.direction.unitCode,
+                    self.directionKeys.value : self.direction.value,
+                    self.directionKeys.valueType : self.direction.value_type.name
+                }
+            }
+        if self.speedLow is not None:
+            as_dict[self.speedLowKeys.key] = {
+                    self.speedLowKeys.unitCode : self.speedLow.unitCode,
+                    self.speedLowKeys.value : self.speedLow.value,
+                    self.speedLowKeys.valueType : self.speedLow.value_type.name
+                }
+        return as_dict
 
 @dataclass
 class EmpyreanFrontMatterKeys():

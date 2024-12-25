@@ -1,7 +1,9 @@
 from enum import Enum
 
+from utils.structures.empyrean_enum import EmpyreanEnum
 
-class DownloadStatus(Enum):
+
+class DownloadStatus(EmpyreanEnum):
     INSTANTIATING                   = 0
     INITIALIZING                    = 1
     BUILDING_REQUEST                = 2
@@ -15,15 +17,3 @@ class DownloadStatus(Enum):
     REQUEST_SUCCESS                 = 9
     SAVING_DATA                     = 10
     SAVE_COMPLETE                   = 11
-
-    def max_value():
-        return DownloadStatus.SAVE_COMPLETE.value
-
-    @classmethod
-    def list(cls) -> list:
-        """
-        Returns all of the widget types as a list.
-
-        Source: https://stackoverflow.com/a/54919285
-        """
-        return list(map(lambda c: c.value, cls))

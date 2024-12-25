@@ -102,7 +102,7 @@ class ForecastViewer_Notebook(Notebook):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
             forecast_type = self.request_window.request_type
-            for type in ForecastType.get_list_of_types():
+            for type in ForecastType.list(ForecastType):
                 if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
                     forecast_type = type
             self.update_forecast(self.request_window.forecast_to_save, forecast_type)

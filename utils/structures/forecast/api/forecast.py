@@ -16,7 +16,7 @@ class PeriodKeys():
     temperatureUnit = "temperatureUnit"
     temperatureTrend = "temperatureTrend"
     probabilityOfPrecipitation = UnitValueKeys("probabilityOfPrecipitation")
-    dewpoint = UnitValueKeys("dewpoint")
+    dewPoint = UnitValueKeys("dewpoint")
     relativeHumidity = UnitValueKeys("relativeHumidity")
     windSpeed = "windSpeed"
     windDirection = "windDirection"
@@ -44,7 +44,7 @@ class Period():
     temperatureUnit: str
     temperatureTrend: str
     probabilityOfPrecipitation: UnitValue
-    dewpoint: UnitValue
+    dewPoint: UnitValue
     relativeHumidity: UnitValue
     windSpeed: str
     windDirection: str
@@ -61,9 +61,9 @@ class Period():
         self.temperature = int(period_data[PeriodKeys.temperature])
         self.temperatureUnit = period_data[PeriodKeys.temperatureUnit]
         self.temperatureTrend = period_data[PeriodKeys.temperatureTrend]
-        self.probabilityOfPrecipitation = UnitValue(period_data[PeriodKeys.probabilityOfPrecipitation.key][UnitValueKeys.unitCode], period_data[PeriodKeys.probabilityOfPrecipitation.key][UnitValueKeys.value])
-        self.dewpoint = UnitValue(period_data[PeriodKeys.dewpoint.key][UnitValueKeys.unitCode], period_data[PeriodKeys.dewpoint.key][UnitValueKeys.value])
-        self.relativeHumidity = UnitValue(period_data[PeriodKeys.relativeHumidity.key][UnitValueKeys.unitCode], period_data[PeriodKeys.relativeHumidity.key][UnitValueKeys.value])
+        self.probabilityOfPrecipitation = UnitValue(period_data[PeriodKeys.probabilityOfPrecipitation.key])
+        self.dewPoint = UnitValue(period_data[PeriodKeys.dewPoint.key])
+        self.relativeHumidity = UnitValue(period_data[PeriodKeys.relativeHumidity.key])
         self.windSpeed = period_data[PeriodKeys.windSpeed]
         self.windDirection = period_data[PeriodKeys.windDirection]
         self.icon = period_data[PeriodKeys.icon]
@@ -81,7 +81,7 @@ class Period():
             PeriodKeys.temperatureUnit : self.temperatureUnit,
             PeriodKeys.temperatureTrend : self.temperatureTrend,
             PeriodKeys.probabilityOfPrecipitation.key : self.probabilityOfPrecipitation.to_dict(),
-            PeriodKeys.dewpoint.key : self.dewpoint.to_dict(),
+            PeriodKeys.dewPoint.key : self.dewPoint.to_dict(),
             PeriodKeys.relativeHumidity.key : self.relativeHumidity.to_dict(),
             PeriodKeys.windSpeed : self.windSpeed,
             PeriodKeys.windDirection : self.windDirection,
@@ -106,7 +106,7 @@ class PropertiesData():
         self.generatedAt = properties_data[PropertiesKeys.generatedAt]
         self.updateTime = properties_data[PropertiesKeys.updateTime]
         self.validTimes = properties_data[PropertiesKeys.validTimes]
-        self.elevation = UnitValue(properties_data[PropertiesKeys.elevation.key][UnitValueKeys.unitCode], properties_data[PropertiesKeys.elevation.key][UnitValueKeys.value])
+        self.elevation = UnitValue(properties_data[PropertiesKeys.elevation.key])
         self.periods = [ ]
         for p in properties_data[PropertiesKeys.periods]:
             self.periods.append(Period(p))
@@ -121,9 +121,6 @@ class PropertiesData():
             PropertiesKeys.generatedAt: self.generatedAt,
             PropertiesKeys.updateTime: self.updateTime,
             PropertiesKeys.validTimes: self.validTimes,
-            PropertiesKeys.elevation.key: {
-                UnitValueKeys.unitCode : self.elevation.unitCode,
-                UnitValueKeys.value : self.elevation.value
-            },
+            PropertiesKeys.elevation.key: self.elevation.to_dict(),
             PropertiesKeys.periods : periods_in_list
         }

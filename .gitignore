@@ -156,4 +156,3 @@ Forecasts/*
 utils/private/*
 gui/icons/*.png
 utils/json/test_data/raw_forecast.json
-.cspell/custom-dictionary-workspace.txt

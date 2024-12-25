@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 
 from utils.structures.empyrean_enum import EmpyreanEnum
 
@@ -23,10 +24,21 @@ class UnitValue():
     value: str
     value_type: Value_Type
 
+    _allowed_error = 1e-5
+
     def __init__(self, unitValue: dict[str, str]) -> None:
         self.unitCode: str = unitValue["unitCode"]
-        self.value: str = unitValue["value"]
-        self.value_type: Value_Type = Value_Type.from_string(unitValue["valueType"])
+        self.value: str = str(unitValue["value"])
+        
+        if "valueType" in list(unitValue.keys()):
+            self.value_type: Value_Type = Value_Type.from_string(unitValue["valueType"])
+        elif '.' in self.value:
+            self.value_type: Value_Type = Value_Type.FLOAT
+        elif str.isdigit(self.value):
+            self.value_type: Value_Type = Value_Type.INTEGER
+        else:
+            self.value_type: Value_Type = Value_Type.STRING
+            
 
     def get_unit(self):
         unitCode, unit = self.unitCode.split(':')
@@ -49,7 +61,7 @@ class UnitValue():
     def to_dict(self) -> dict[str, str]:
         return {
             UnitValueKeys.unitCode : self.unitCode,
-            UnitValueKeys.value : str(self.value),
+            UnitValueKeys.value : self.get_value(),
             UnitValueKeys.valueType : self.value_type.name
         }
 

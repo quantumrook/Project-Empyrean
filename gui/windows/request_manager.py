@@ -7,6 +7,7 @@ from tkinter.scrolledtext import ScrolledText
 from utils.download.download_status import DownloadStatus
 from utils.download.request_thread import RequestThread
 from utils.download.request_type import RequestType
+from utils.structures.forecast.api.forecast import PropertiesData
 from utils.structures.forecast.forecast import Forecast
 from utils.structures.location.location import Location
 from utils.writer import save_forecast_data
@@ -20,6 +21,7 @@ class RequestThreadManager_Window(tk.Toplevel):
         super().__init__()
         self.wm_title("Download Status")
 
+        self.api_data:           PropertiesData = None
         self.forecast_to_save:   Forecast = None
         self.request_type:       RequestType = RequestType.POINTS
         self.download_status:    DownloadStatus = DownloadStatus.INSTANTIATING
@@ -41,8 +43,9 @@ class RequestThreadManager_Window(tk.Toplevel):
             # TODO:: update private.json with data from this request
             print("Requested Point Data, faking save")
         else:
+            self.api_data = PropertiesData(download_thread.response_json["properties"])
             self.forecast_to_save = Forecast(download_thread.response_json["properties"])
-        save_forecast_data(download_thread.location, download_thread.request_type, self.forecast_to_save)
+        save_forecast_data(download_thread.location, download_thread.request_type, self.forecast_to_save, self.api_data)
         time.sleep(1)
         download_thread.status = DownloadStatus.SAVE_COMPLETE
         time.sleep(1)

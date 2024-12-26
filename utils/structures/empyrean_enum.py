@@ -13,6 +13,8 @@ class EmpyreanEnum(Enum):
 
     @classmethod
     def from_string(cls, str_to_convert: str) -> Self:
+        if isinstance(str_to_convert, EmpyreanEnum):
+            str_to_convert = str(str_to_convert.value)
         for enum in cls.list():
             if str(enum.value).lower() == str_to_convert.lower():
                 return enum

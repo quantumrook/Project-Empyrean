@@ -2,13 +2,12 @@ import json
 from pathlib import Path
 
 from utils.private.private import directory_paths
-from utils.structures.forecast.api.forecast import PropertiesData
-from utils.structures.forecast.forecast import Forecast
+from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.location.location import Location
 
 
-def save_forecast_data(location: Location, forecast_type, forecast_data: Forecast, prop_data: PropertiesData):
-    directories = ['Forecasts', f'{location.name}', f'{forecast_type.name}']
+def save_forecast_data(location: Location, forecast_data: EmpyreanForecast):
+    directories = ['Forecasts', f'{location.name}', f'{forecast_data.frontmatter.forecast_type.name.title()}']
     filename = directory_paths["project"]
 
     for directory in directories:
@@ -20,9 +19,9 @@ def save_forecast_data(location: Location, forecast_type, forecast_data: Forecas
         else:
             Path.mkdir(path_to_file)
     
-    filename += f'\\{forecast_data.generatedAt.date}.json'
+    filename += f'\\{forecast_data.frontmatter.generated.date}.json'
 
     with open(filename, 'w+') as forecast_JSON_file:
-        data_as_JSON_Object = json.dumps(prop_data.to_dict(), indent=4, sort_keys=False)
+        data_as_JSON_Object = json.dumps(forecast_data.to_dict(), indent=4, sort_keys=False)
         # data_as_JSON_Object = json.dumps(forecast_data, indent=4, sort_keys=True)
         forecast_JSON_file.write(data_as_JSON_Object)

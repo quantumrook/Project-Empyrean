@@ -1,5 +1,7 @@
 from typing import Any, Self
 
+from utils.structures.forecast.api.forecast import Period
+
 
 class EmpyreanProperties():
 
@@ -14,11 +16,11 @@ class EmpyreanProperties():
         self.icon: str = ""
     
     @staticmethod
-    def from_API(properties: dict[str, Any]) -> Self:
+    def from_API(period: Period) -> Self:
         new_instance = EmpyreanProperties()
-        new_instance.name = properties[EmpyreanProperties.Keys.name]
-        new_instance.isDaytime = bool(properties[EmpyreanProperties.Keys.isDaytime])
-        new_instance.icon = properties[EmpyreanProperties.Keys.icon] #TODO :: Convert API link of icon to local path
+        new_instance.name = period.name
+        new_instance.isDaytime = bool(period.isDaytime)
+        new_instance.icon = period.icon #TODO :: Convert API link of icon to local path
         return new_instance
     
     @staticmethod

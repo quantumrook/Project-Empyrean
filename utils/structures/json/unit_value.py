@@ -36,7 +36,9 @@ class UnitValue():
             
 
     def get_unit(self):
-        unitCode, unit = self.unitCode.split(':')
+        if self.unitCode == "F":
+            return self.unitCode
+        unitCode, _, unit = self.unitCode.partition(':')
         match unit:
             case "percent":
                 unit = "%"

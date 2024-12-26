@@ -1,6 +1,8 @@
 from typing import Any, Self
 
+from utils.structures.datetime import EmpyreanDateTime
 from utils.structures.forecast.api.forecast import PropertiesData
+from utils.structures.forecast.empyrean.content import EmpyreanForecastContent
 from utils.structures.forecast.empyrean.forecast_entry import EmpyreanForecastEntry
 from utils.structures.forecast.empyrean.frontmatter import EmpyreanFrontmatter
 
@@ -20,7 +22,7 @@ class EmpyreanForecast():
         new_instance = EmpyreanForecast()
         new_instance.frontmatter = EmpyreanFrontmatter.from_API(properties_data)
         for entry in properties_data.periods:
-            new_instance.forecasts.append(EmpyreanForecastEntry.from_API(entry, properties_data))
+            new_instance.forecasts.append(EmpyreanForecastEntry.from_API(entry))
         return new_instance
     
     @staticmethod
@@ -39,4 +41,9 @@ class EmpyreanForecast():
             EmpyreanForecast.Keys.forecasts : forecast_list
         }
     
-
+    def get_forecast_for_range(self, starting_datetime: EmpyreanDateTime, ending_datetime: EmpyreanDateTime) -> list[dict[EmpyreanDateTime, EmpyreanForecastContent]]:
+        forecast_for_range = [ ]
+        for entry in self.forecasts:
+            if EmpyreanDateTime.is_in_range(entry.start, starting_datetime, ending_datetime):
+                forecast_for_range.append({entry.start : entry.content})
+        return forecast_for_range

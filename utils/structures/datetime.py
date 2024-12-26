@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Self
 
 import pytz as tz
@@ -27,14 +27,14 @@ class EmpyreanDateTime():
             self.time_zone: timezone = timezone(location_timezone)
             
         #default to now, for the case where nothing is given
-        self.__localize(datetime.now())
+        EmpyreanDateTime.__localize(datetime.now(), self)
     
     @staticmethod
     def __localize(original_dt: datetime, instance: Self) -> None:
         if (EmpyreanDateTime.default_timezone == instance.time_zone) == False:
             #localize and account for DST
-            instance.date_time = tz.localize(original_dt).astimezone(instance.time_zone)
-            instance.date_time = tz.normalize(instance.date_time)
+            instance.date_time = instance.time_zone.localize(original_dt).astimezone(instance.time_zone)
+            instance.date_time = instance.time_zone.normalize(instance.date_time)
             
             # ensure datetime_format
             generating_str = datetime.strftime(instance.date_time, EmpyreanDateTime.datetime_format)
@@ -80,3 +80,13 @@ class EmpyreanDateTime():
             EmpyreanDateTime.Keys.time : self.time,
             EmpyreanDateTime.Keys.time_zone : str(self.time_zone)
         }
+    
+    @staticmethod
+    def is_in_range(questionable_datetime: Self, starting_datetime: Self, ending_datetime: Self) -> bool:
+        if questionable_datetime.date_time >= starting_datetime.date_time and questionable_datetime.date_time <= ending_datetime.date_time:
+            return True
+        return False
+    
+    @staticmethod
+    def add_days(empyrean_datetime: Self, days: int) -> Self:
+        return EmpyreanDateTime.from_datetime(empyrean_datetime.date_time + timedelta(days=days))

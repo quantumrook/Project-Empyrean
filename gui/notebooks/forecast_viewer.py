@@ -102,61 +102,93 @@ class ForecastViewer_Notebook(Notebook):
     def _monitor_requests(self):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
-            forecast_type = self.request_window.request_type
-            for type in ForecastType.list():
-                if (f'{self.location.alias}{type.value.title()}') == self.current_tab:
-                    forecast_type = type
-            self.update_forecast(self.request_window.forecast_to_save, forecast_type)
+
+            match self.request_window.forecast_to_save.frontmatter.forecast_type:
+                case ForecastType.HOURLY:
+                    self.update_hourly_forecast(self.request_window.forecast_to_save)
+                case ForecastType.EXTENDED:
+                    self.update_extended_forecast(self.request_window.forecast_to_save)
+
             self.request_window.destroy()
             self.request_window = None
         else:
             self.after(1000, self._monitor_requests)
 
-    def update_forecast(self, forecast: Forecast, forecast_type: ForecastType):
+    def update_hourly_forecast(self, forecast: EmpyreanForecast):
         forecast_as_str = [ ]
         placements = [ ]
         counter = 1
-        for dt, data in forecast.forecasts.items():
-            if forecast_type == ForecastType.HOURLY and dt.date == EmpyreanDateTime().date:
+
+        today = EmpyreanDateTime()
+        tomorrow = EmpyreanDateTime.add_days(today, 1)
+        first_next_day_entry = False
+        for forecast_entry in forecast.get_forecast_for_range(today, tomorrow):
+            for dt, content in forecast_entry.items():
                 if counter == 1:
-                    forecast_as_str.append(f'{data.startTime.as_string()}:\n')
+                    forecast_as_str.append(f'{dt.as_string()}:\n')
+                elif first_next_day_entry == False and dt.date == tomorrow.date:
+                    first_next_day_entry = True
+                    forecast_as_str.append(f'{dt.as_string()}\n')
                 else:
-                    forecast_as_str.append(f'{data.startTime.time}:\n')
-                placements.append(GridPlacement(col=0, row=counter, sticky=tk.EW))
+                    forecast_as_str.append(f'{dt.time}:\n')
                 
-                if data.detailed[0]:
-                    forecast_as_str.append(f'{data.short}\n{data.detailed}')
+                placements.append(GridPlacement(col=0, row=counter, sticky=tk.EW))
+
+                if content.description.long.get_value():
+                    forecast_as_str.append(f'{content.description.short.get_value()}\n{content.description.long.get_value()}')
                 else:
-                    forecast_as_str.append(f'{data.short}\n')
+                    forecast_as_str.append(f'{content.description.short.get_value()}\n')
+
                 placements.append(GridPlacement(col=1, row=counter, sticky=tk.EW))
 
                 forecast_as_str.append(f'Temp:\nRain Chance:')
                 placements.append(GridPlacement(col=2, row=counter, sticky=tk.EW))
 
-                forecast_as_str.append(f'{data.temperature.value} {data.temperature.unit}\n{data.probabilityOfPrecipitation} %')
-                placements.append(GridPlacement(col=3, row=counter, sticky=tk.EW))
-
-                counter += 1
-            elif forecast_type == ForecastType.EXTENDED:
-                forecast_as_str.append(f'{data.startTime.as_string()}:\n')
-                placements.append(GridPlacement(col=0, row=counter, sticky=tk.EW))
-                
-                if data.detailed[0]:
-                    forecast_as_str.append(f'{data.short}\n{" ".join(data.detailed)}')
-                else:
-                    forecast_as_str.append(f'{data.short}\n')
-                placements.append(GridPlacement(col=1, row=counter, sticky=tk.EW))
-
-                forecast_as_str.append(f'Temp:\nRain Chance:')
-                placements.append(GridPlacement(col=2, row=counter, sticky=tk.EW))
-
-                forecast_as_str.append(f'{data.temperature.value} {data.temperature.unit}\n{data.probabilityOfPrecipitation} %')
+                forecast_as_str.append(f'{content.temperature.get_value()} {content.temperature.get_unit()}\n{content.rainChance.get_value()} %')
                 placements.append(GridPlacement(col=3, row=counter, sticky=tk.EW))
 
                 counter += 1
 
         for subframe_name in self.sub_frame_names:
-            if subframe_name == f'{self.location.alias}{forecast_type.value.title()}':
+            if subframe_name == f'{self.location.alias}{forecast.frontmatter.forecast_type.value.title()}':
+                for r in range(1, counter + 1):
+                        self.subframes[subframe_name][WidgetType.LABELFRAME].rowconfigure(r, weight=1)
+
+        self.set_content(
+                content= forecast_as_str,
+                placements= placements
+            )
+
+    def update_extended_forecast(self, forecast: EmpyreanForecast):
+        forecast_as_str = [ ]
+        placements = [ ]
+        counter = 1
+
+        today = EmpyreanDateTime()
+        tomorrow = EmpyreanDateTime.add_days(today, 7)
+        for forecast_entry in forecast.get_forecast_for_range(today, tomorrow):
+            for dt, content in forecast_entry.items():
+
+                forecast_as_str.append(f'{dt.as_string()}\n')
+                placements.append(GridPlacement(col=0, row=counter, sticky=tk.EW))
+
+                if content.description.long.get_value():
+                    forecast_as_str.append(f'{content.description.short.get_value()}\n{content.description.long.get_value()}')
+                else:
+                    forecast_as_str.append(f'{content.description.short.get_value()}\n')
+
+                placements.append(GridPlacement(col=1, row=counter, sticky=tk.EW))
+
+                forecast_as_str.append(f'Temp:\nRain Chance:')
+                placements.append(GridPlacement(col=2, row=counter, sticky=tk.EW))
+
+                forecast_as_str.append(f'{content.temperature.get_value()} {content.temperature.get_unit()}\n{content.rainChance.get_value()} %')
+                placements.append(GridPlacement(col=3, row=counter, sticky=tk.EW))
+
+                counter += 1
+
+        for subframe_name in self.sub_frame_names:
+            if subframe_name == f'{self.location.alias}{forecast.frontmatter.forecast_type.value.title()}':
                 for r in range(1, counter + 1):
                         self.subframes[subframe_name][WidgetType.LABELFRAME].rowconfigure(r, weight=1)
 

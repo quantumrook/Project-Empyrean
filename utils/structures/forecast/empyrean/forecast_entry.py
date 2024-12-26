@@ -30,6 +30,7 @@ class EmpyreanForecastEntry():
         new_instance.end = EmpyreanDateTime.from_API(period.endTime)
         new_instance.properties = EmpyreanProperties.from_API(period)
         new_instance.content = EmpyreanForecastContent.from_API(period)
+        return new_instance
 
     @staticmethod
     def from_Empyrean(entry: dict[str, Any]) -> Self:

@@ -60,22 +60,22 @@ class Wind():
 
     def to_dict(self) -> dict[str, dict[str, str]]:
         as_dict = {
-                self.Keys.speedHigh.key : {
-                    self.Keys.speedHigh.unitCode : self.speedHigh.unitCode,
-                    self.Keys.speedHigh.value : self.speedHigh.value,
-                    self.Keys.speedHigh.valueType : self.speedHigh.value_type.name
+                self.Keys.speedHigh : {
+                    UnitValue.Keys.unitCode : self.speedHigh.unitCode,
+                    UnitValue.Keys.value : self.speedHigh.value,
+                    UnitValue.Keys.valueType : self.speedHigh.value_type.name
                 },
-                self.Keys.direction.key : {
-                    self.Keys.direction.unitCode : self.direction.unitCode,
-                    self.Keys.direction.value : self.direction.value,
-                    self.Keys.direction.valueType : self.direction.value_type.name
+                self.Keys.direction : {
+                    UnitValue.Keys.unitCode : self.direction.unitCode,
+                    UnitValue.Keys.value : self.direction.value,
+                    UnitValue.Keys.valueType : self.direction.value_type.name
                 }
             }
         if self.speedLow is not None:
-            as_dict[self.Keys.speedLow.key] = {
-                    self.Keys.speedLow.unitCode : self.speedLow.unitCode,
-                    self.Keys.speedLow.value : self.speedLow.value,
-                    self.Keys.speedLow.valueType : self.speedLow.value_type.name
+            as_dict[self.Keys.speedLow] = {
+                    UnitValue.Keys.unitCode : self.speedLow.unitCode,
+                    UnitValue.Keys.value : self.speedLow.value,
+                    UnitValue.Keys.valueType : self.speedLow.value_type.name
                 }
         return as_dict
 

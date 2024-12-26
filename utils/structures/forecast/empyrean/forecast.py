@@ -6,6 +6,7 @@ from utils.structures.forecast.api.forecast import PropertiesData
 from utils.structures.forecast.empyrean.content import EmpyreanForecastContent
 from utils.structures.forecast.empyrean.forecast_entry import EmpyreanForecastEntry
 from utils.structures.forecast.empyrean.frontmatter import EmpyreanFrontmatter
+from utils.text_wrapper import format_text_as_wrapped
 
 
 class EmpyreanForecast():
@@ -51,12 +52,10 @@ class EmpyreanForecast():
         return forecast_for_range
 
     def to_hourly_tree_dict(self) -> list[dict[str, Any]]:
-
-        entries = [ ]
-        today = EmpyreanDateTime().date
+        now = EmpyreanDateTime.now()
         date_entry = None
         for entry in self.forecasts:
-            if entry.start.date == today:
+            if entry.start.date == now.date and entry.start.hour() >= now.hour():
                 open_flag = True
                 if date_entry is None:
                     date_entry = TreeEntry(name=entry.start.date, is_open=open_flag, subdata=[ ])
@@ -70,9 +69,9 @@ class EmpyreanForecast():
                 date_entry.subdata.append(tree_entry)
         return [ date_entry.to_dict() ]
     
-    def to_extended_tree_dict(self) -> list[dict[str, Any]]: ## TODO: Use Extended Data
+    def to_extended_tree_dict(self) -> list[dict[str, Any]]: 
         entries = [ ]
-        today = EmpyreanDateTime().date
+        today = EmpyreanDateTime.now().date
         new_date = True
         date_entry = None
         for entry in self.forecasts:
@@ -90,12 +89,20 @@ class EmpyreanForecast():
             if new_date:
                 date_entry = TreeEntry(name=entry.start.date, is_open=open_flag, subdata=[ ])
 
+            forecast_details = format_text_as_wrapped(entry.content.description.long.get_value(), number_of_characters_per_line=110)
+            subentries = [ ]
+            for line in forecast_details.split("\n"):
+                if len(subentries) == 0:
+                    subentries.append(TreeEntry(name="Detailed", is_open=False, value=line))
+                else:
+                    subentries.append(TreeEntry(name="", is_open=False, value=line))
             entry_subdata = [
-                TreeEntry(name=entry.content.Keys.temperature, is_open=True, value=f"{entry.content.temperature.get_value()} {entry.content.temperature.get_unit()}"),
-                TreeEntry(name=entry.content.Keys.rainChance, is_open=True, value=f"{entry.content.rainChance.get_value()} {entry.content.rainChance.get_unit()}")
+                TreeEntry(name=entry.content.DisplayKeys.description, is_open=open_flag, value=f"{entry.content.description.short.get_value()}", subdata= subentries),
+                TreeEntry(name=entry.content.DisplayKeys.temperature, is_open=True, value=f"{entry.content.temperature.get_value()} {entry.content.temperature.get_unit()}"),
+                TreeEntry(name=entry.content.DisplayKeys.rainChance, is_open=True, value=f"{entry.content.rainChance.get_value()} {entry.content.rainChance.get_unit()}"),
             ]
 
-            tree_entry = TreeEntry(name=entry.start.time, is_open=open_flag, subdata=entry_subdata)
+            tree_entry = TreeEntry(name=entry.properties.name, is_open=open_flag, subdata=entry_subdata)
             date_entry.subdata.append(tree_entry)
         return entries
     
@@ -121,7 +128,8 @@ class TreeEntry():
             return {
                 TreeEntry.Keys.name : self.name,
                 TreeEntry.Keys.open : bool(self.open),
-                TreeEntry.Keys.value : self.value
+                TreeEntry.Keys.value : self.value, 
+                TreeEntry.Keys.subdata : subdata_list
             }
         else:
             return {

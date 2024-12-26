@@ -21,16 +21,6 @@ class Extended_DisplayFrame(TKMT.WidgetFrame):
 
     def _setup_info_display(self) -> None:
 
-        summary = ""
-        for entry in self.extended_forecast.forecasts[0:1]:
-            summary += f" {entry.content.description.long.get_value()}"
-
-        wrapping_str = format_text_as_wrapped(
-            string_to_wrap= summary,
-            add_tab= True,
-            number_of_characters_per_line= 80
-        )
-
         self.master.info_frame = self.master.addFrame("")
         self.master.info_frame.Label(
             text=format_list_as_line_with_breaks(
@@ -53,9 +43,9 @@ class Extended_DisplayFrame(TKMT.WidgetFrame):
         self.master.info_frame.Label(
             text=format_list_as_line_with_breaks(
                 list_to_compress= [
-                        f'{self.hourly_forecast.frontmatter.generated.as_string()}',
-                        f'{self.hourly_forecast.frontmatter.updated.as_string()}',
-                        f'{self.hourly_forecast.frontmatter.expiration.as_string()}'
+                        f'{self.extended_forecast.frontmatter.generated.as_string()}',
+                        f'{self.extended_forecast.frontmatter.updated.as_string()}',
+                        f'{self.extended_forecast.frontmatter.expiration.as_string()}'
                     ],
                 add_tab_spacing= False
             ),
@@ -68,23 +58,14 @@ class Extended_DisplayFrame(TKMT.WidgetFrame):
             sticky = tk.W
         )
 
-        self.master.info_frame.Label(
-            text=wrapping_str,
-            weight="normal",
-            size= 10,
-            row= 1,
-            col= 0,
-            colspan = 2,
-            rowspan = 1,
-            sticky = tk.E
-        )
-
     def _setup_tree_display(self) -> None:
-        tree_dict = self.hourly_forecast.to_extended_tree_dict()
+        tree_dict = self.extended_forecast.to_extended_tree_dict()
+        one_fifth = round(768 / 5)
+        four_fifths = 768-one_fifth
         self.master.info_frame.Treeview(
                 columnnames     = ['By Date and Time', 'Forecast'], 
-                columnwidths    = [2, 5], 
-                height          = 10,
+                columnwidths    = [one_fifth, four_fifths], 
+                height          = 20,
                 data            = tree_dict,
                 subentryname    = 'subdata',
                 datacolumnnames = ['name', 'value'],

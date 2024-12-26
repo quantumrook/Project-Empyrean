@@ -20,6 +20,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     def __init__(self, theme, mode, usecommandlineargs=True, usethemeconfigfile=True):
         super().__init__("Project Empyrean", theme, mode, usecommandlineargs=usecommandlineargs, useconfigfile=usethemeconfigfile)
 
+        self.root.geometry("1024x768")
+
         self.locations: list[Location] = [ ]
         self.forecasts: dict[str, dict[ForecastType, EmpyreanForecast]] = { }
         self.load_private_data()

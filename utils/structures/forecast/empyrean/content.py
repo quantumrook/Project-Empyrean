@@ -16,6 +16,14 @@ class EmpyreanForecastContent():
         wind: str = "wind"
         description: str = "description"
 
+    class DisplayKeys():
+        temperature: str = "Temperature"
+        rainChance: str = "Rain Chance"
+        dewPoint: str = "Dew Point"
+        relativeHumidity: str = "Relative Humidity"
+        wind: str = "Wind"
+        description: str = "Forecast"
+
     def __init__(self) -> None:
         self.temperature: UnitValue             = None
         self.rainChance: UnitValue              = None

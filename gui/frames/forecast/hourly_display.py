@@ -28,7 +28,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         wrapping_str = format_text_as_wrapped(
             string_to_wrap= summary,
             add_tab= True,
-            number_of_characters_per_line= 80
+            number_of_characters_per_line= 160
         )
 
         self.master.info_frame = self.master.addFrame("")
@@ -81,10 +81,12 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
 
     def _setup_tree_display(self) -> None:
         tree_dict = self.hourly_forecast.to_hourly_tree_dict()
+        one_fifth = round(768 / 5)
+        four_fifths = 768-one_fifth
         self.master.info_frame.Treeview(
                 columnnames     = ['By Date and Time', 'Forecast'], 
-                columnwidths    = [2, 5], 
-                height          = 10,
+                columnwidths    = [one_fifth, four_fifths], 
+                height          = 18,
                 data            = tree_dict,
                 subentryname    = 'subdata',
                 datacolumnnames = ['name', 'value'],

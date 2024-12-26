@@ -37,16 +37,22 @@ class EmpyreanForecastContent():
             UnitValue.Keys.value        : period.probabilityOfPrecipitation[UnitValue.Keys.value],
             UnitValue.Keys.valueType    : Value_Type.INTEGER
         })
-        new_instance.dewPoint = UnitValue({
-            UnitValue.Keys.unitCode     : period.dewPoint[UnitValue.Keys.unitCode],
-            UnitValue.Keys.value        : period.dewPoint[UnitValue.Keys.value],
-            UnitValue.Keys.valueType    : Value_Type.FLOAT
-        })
-        new_instance.relativeHumidity = UnitValue({
-            UnitValue.Keys.unitCode     : period.relativeHumidity[UnitValue.Keys.unitCode],
-            UnitValue.Keys.value        : period.relativeHumidity[UnitValue.Keys.value],
-            UnitValue.Keys.valueType    : Value_Type.INTEGER
-        })
+        if period.dewPoint:
+            new_instance.dewPoint = UnitValue({
+                UnitValue.Keys.unitCode     : period.dewPoint[UnitValue.Keys.unitCode],
+                UnitValue.Keys.value        : period.dewPoint[UnitValue.Keys.value],
+                UnitValue.Keys.valueType    : Value_Type.FLOAT
+            })
+        else:
+            new_instance.dewPoint = UnitValue({UnitValue.Keys.unitCode: "", UnitValue.Keys.value : "", UnitValue.Keys.valueType : Value_Type.STRING})
+        if period.relativeHumidity:
+            new_instance.relativeHumidity = UnitValue({
+                UnitValue.Keys.unitCode     : period.relativeHumidity[UnitValue.Keys.unitCode],
+                UnitValue.Keys.value        : period.relativeHumidity[UnitValue.Keys.value],
+                UnitValue.Keys.valueType    : Value_Type.INTEGER
+            })
+        else:
+            new_instance.relativeHumidity = UnitValue({UnitValue.Keys.unitCode: "", UnitValue.Keys.value : "", UnitValue.Keys.valueType : Value_Type.STRING})
         new_instance.wind = Wind.from_API(period)
         new_instance.description = EmpyreanDescription.from_API(period)
         return new_instance

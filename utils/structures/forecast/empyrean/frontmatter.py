@@ -35,7 +35,7 @@ class EmpyreanFrontmatter():
 
         new_instance.generated  = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.generatedAt)
         new_instance.updated    = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.updateTime)
-        new_instance.expiration = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.validTimes)
+        new_instance.expiration = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.validTimes, is_expiration=True)
         
         new_instance.elevation = UnitValue({
             UnitValue.Keys.unitCode     : properties_data.elevation[UnitValue.Keys.unitCode],

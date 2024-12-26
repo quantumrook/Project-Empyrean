@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Self
 
 from utils.structures.datetime import EmpyreanDateTime
@@ -26,12 +27,13 @@ class EmpyreanForecast():
         return new_instance
     
     @staticmethod
-    def from_Empyrean(json_data: dict[str, Any]) -> None:
+    def from_Empyrean(json_data: dict[str, Any]) -> Self:
         new_instance = EmpyreanForecast()
         new_instance.frontmatter = EmpyreanFrontmatter.from_Empyrean(json_data[EmpyreanForecast.Keys.frontmatter])
         for entry in json_data[EmpyreanForecast.Keys.forecasts]:
             new_instance.forecasts.append(EmpyreanForecastEntry.from_Empyrean(entry))
-
+        return new_instance
+    
     def to_dict(self) -> dict[str, Any]:
         forecast_list = [ ]
         for forecast_entry in self.forecasts:
@@ -47,3 +49,83 @@ class EmpyreanForecast():
             if EmpyreanDateTime.is_in_range(entry.start, starting_datetime, ending_datetime):
                 forecast_for_range.append({entry.start : entry.content})
         return forecast_for_range
+
+    def to_hourly_tree_dict(self) -> list[dict[str, Any]]:
+
+        entries = [ ]
+        today = EmpyreanDateTime().date
+        date_entry = None
+        for entry in self.forecasts:
+            if entry.start.date == today:
+                open_flag = True
+                if date_entry is None:
+                    date_entry = TreeEntry(name=entry.start.date, is_open=open_flag, subdata=[ ])
+
+                entry_subdata = [
+                    TreeEntry(name=entry.content.Keys.temperature, is_open=True, value=f"{entry.content.temperature.get_value()} {entry.content.temperature.get_unit()}"),
+                    TreeEntry(name=entry.content.Keys.rainChance, is_open=True, value=f"{entry.content.rainChance.get_value()} {entry.content.rainChance.get_unit()}")
+                ]
+
+                tree_entry = TreeEntry(name=entry.start.time, is_open=open_flag, subdata=entry_subdata)
+                date_entry.subdata.append(tree_entry)
+        return [ date_entry.to_dict() ]
+    
+    def to_extended_tree_dict(self) -> list[dict[str, Any]]: ## TODO: Use Extended Data
+        entries = [ ]
+        today = EmpyreanDateTime().date
+        new_date = True
+        date_entry = None
+        for entry in self.forecasts:
+            if entry.start.date == today:
+                open_flag = True
+            else:
+                open_flag = False
+
+            if date_entry is not None and entry.start.date != date_entry.name:
+                new_date = True
+                entries.append(date_entry.to_dict())
+            elif date_entry is not None and entry.start.date == date_entry.name:
+                new_date = False
+
+            if new_date:
+                date_entry = TreeEntry(name=entry.start.date, is_open=open_flag, subdata=[ ])
+
+            entry_subdata = [
+                TreeEntry(name=entry.content.Keys.temperature, is_open=True, value=f"{entry.content.temperature.get_value()} {entry.content.temperature.get_unit()}"),
+                TreeEntry(name=entry.content.Keys.rainChance, is_open=True, value=f"{entry.content.rainChance.get_value()} {entry.content.rainChance.get_unit()}")
+            ]
+
+            tree_entry = TreeEntry(name=entry.start.time, is_open=open_flag, subdata=entry_subdata)
+            date_entry.subdata.append(tree_entry)
+        return entries
+    
+
+class TreeEntry():
+    class Keys():
+        name: str = "name"
+        open: str = "open"
+        subdata: str = "subdata"
+        value: str = "value"
+
+    def __init__(self, name: str, is_open: bool = False, subdata: list[Self] = [ ], value:str = ""):
+        self.name = name
+        self.open = is_open
+        self.subdata: list[TreeEntry] = subdata
+        self.value = value
+
+    def to_dict(self) -> dict[str, Any]:
+        subdata_list = [ ]
+        for sub_entry in self.subdata:
+            subdata_list.append(sub_entry.to_dict())
+        if self.value:
+            return {
+                TreeEntry.Keys.name : self.name,
+                TreeEntry.Keys.open : bool(self.open),
+                TreeEntry.Keys.value : self.value
+            }
+        else:
+            return {
+                TreeEntry.Keys.name : self.name,
+                TreeEntry.Keys.open : bool(self.open),
+                TreeEntry.Keys.subdata : subdata_list
+            }

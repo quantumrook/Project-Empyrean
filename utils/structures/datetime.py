@@ -46,15 +46,17 @@ class EmpyreanDateTime():
             instance.date, instance.time = generating_str.split(' ')
 
     @staticmethod
-    def from_API(generating_str: str, location_timezone: str = '') -> Self:
+    def from_API(generating_str: str, location_timezone: str = '', is_expiration: bool = False) -> Self:
         new_instance = EmpyreanDateTime(location_timezone)
         
-        date_and_time, _, junk = generating_str.partition('+') #TODO :: use this to better set the expiration time for extended forecasts
+        date_and_time, _, expiration_data = generating_str.partition('+') #TODO :: use this to better set the expiration time for extended forecasts
         date, _, time = date_and_time.partition('T')
         hour, minute, *unused_extra_precision = time.split(sep=':')
         generating_str = f'{date} {hour}:{minute}'
 
         EmpyreanDateTime.__localize(datetime.strptime(generating_str, EmpyreanDateTime.datetime_format), new_instance)
+        if is_expiration:
+            EmpyreanDateTime.add_days(new_instance, 7)
         return new_instance
 
     @staticmethod

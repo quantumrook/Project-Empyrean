@@ -42,9 +42,9 @@ class Wind():
         return new_instance
 
     @staticmethod
-    def from_Empyrean(json_data) -> Self:
+    def from_Empyrean(json_data: dict) -> Self:
         new_instance = Wind()
-        if json_data[new_instance.Keys.speedLow]:
+        if Wind.Keys.speedLow in json_data.keys():
             new_instance.speedLow = UnitValue(json_data[new_instance.Keys.speedLow])
         
         new_instance.speedHigh = UnitValue(json_data[new_instance.Keys.speedHigh])

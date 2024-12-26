@@ -1,32 +1,32 @@
 import tkinter as tk
 
 import TKinterModernThemes as TKMT
-from utils.private.private import directory_paths
-from utils.reader import get_test_data
-from utils.structures.forecast.forecast import Forecast
+from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.location.location import Location
 from utils.text_wrapper import *
 
 
 class Hourly_DisplayFrame(TKMT.WidgetFrame):
-    def __init__(self, master, name: str, forecast: Forecast, location: Location):
+    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location):
         super().__init__(master, name)
 
-        self.forecast: Forecast = forecast
+        self.hourly_forecast: EmpyreanForecast = hourly
+        self.extended_forecast: EmpyreanForecast = extended
         self.location: Location = location
-
-        self.json_data = get_test_data(f'{directory_paths["json"]}\\tree_test_forecast.json')
         
-        self._setup_info_display()
-        self._setup_tree_display()
-        self.master.info_frame.makeResizable()
+        if hourly is not None and extended is not None:
+            self._setup_info_display()
+            self._setup_tree_display()
+            self.master.info_frame.makeResizable()
 
     def _setup_info_display(self) -> None:
-        
-        forecast_type = self.json_data[0]["forecast_type"].title()
+
+        summary = ""
+        for entry in self.extended_forecast.forecasts[0:1]:
+            summary += f" {entry.content.description.long.get_value()}"
 
         wrapping_str = format_text_as_wrapped(
-            string_to_wrap= self.json_data[0]["info"]["long"],
+            string_to_wrap= summary,
             add_tab= True,
             number_of_characters_per_line= 80
         )
@@ -53,9 +53,9 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         self.master.info_frame.Label(
             text=format_list_as_line_with_breaks(
                 list_to_compress= [
-                        f'{self.json_data[0]["info"]["generatedAt"]["date"]} {self.json_data[0]["info"]["generatedAt"]["time"]}',
-                        f'{self.json_data[0]["info"]["updateTime"]["date"]} {self.json_data[0]["info"]["updateTime"]["time"]}',
-                        f'{self.json_data[0]["info"]["validTimes"]["date"]} {self.json_data[0]["info"]["validTimes"]["time"]}'
+                        f'{self.hourly_forecast.frontmatter.generated.as_string()}',
+                        f'{self.hourly_forecast.frontmatter.updated.as_string()}',
+                        f'{self.hourly_forecast.frontmatter.expiration.as_string()}'
                     ],
                 add_tab_spacing= False
             ),
@@ -80,11 +80,12 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         )
 
     def _setup_tree_display(self) -> None:
+        tree_dict = self.hourly_forecast.to_hourly_tree_dict()
         self.master.info_frame.Treeview(
                 columnnames     = ['By Date and Time', 'Forecast'], 
                 columnwidths    = [2, 5], 
                 height          = 10,
-                data            = self.json_data,
+                data            = tree_dict,
                 subentryname    = 'subdata',
                 datacolumnnames = ['name', 'value'],
                 openkey         = 'open',

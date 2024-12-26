@@ -49,33 +49,19 @@ class Period():
         self.temperatureUnit = period_data[Period.Keys.temperatureUnit]
         self.temperatureTrend = period_data[Period.Keys.temperatureTrend]
         self.probabilityOfPrecipitation = period_data[Period.Keys.probabilityOfPrecipitation]
-        self.dewPoint = period_data[Period.Keys.dewPoint]
-        self.relativeHumidity = period_data[Period.Keys.relativeHumidity]
+        if Period.Keys.dewPoint in period_data.keys():
+            self.dewPoint = period_data[Period.Keys.dewPoint]
+        else:
+            self.dewPoint = { }
+        if Period.Keys.relativeHumidity in period_data.keys():
+            self.relativeHumidity = period_data[Period.Keys.relativeHumidity]
+        else:
+            self.relativeHumidity = { }
         self.windSpeed = period_data[Period.Keys.windSpeed]
         self.windDirection = period_data[Period.Keys.windDirection]
         self.icon = period_data[Period.Keys.icon]
         self.shortForecast = period_data[Period.Keys.shortForecast]
         self.detailedForecast = period_data[Period.Keys.detailedForecast]
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            Period.Keys.number : self.number,
-            Period.Keys.name : self.name,
-            Period.Keys.startTime : self.startTime,
-            Period.Keys.endTime : self.endTime,
-            Period.Keys.isDaytime : self.isDaytime,
-            Period.Keys.temperature : self.temperature,
-            Period.Keys.temperatureUnit : self.temperatureUnit,
-            Period.Keys.temperatureTrend : self.temperatureTrend,
-            Period.Keys.probabilityOfPrecipitation.key : self.probabilityOfPrecipitation.to_dict(),
-            Period.Keys.dewPoint.key : self.dewPoint.to_dict(),
-            Period.Keys.relativeHumidity.key : self.relativeHumidity.to_dict(),
-            Period.Keys.windSpeed : self.windSpeed,
-            Period.Keys.windDirection : self.windDirection,
-            Period.Keys.icon : self.icon,
-            Period.Keys.shortForecast : self.shortForecast,
-            Period.Keys.detailedForecast : self.detailedForecast
-        }
 
 
 class PropertiesData():
@@ -105,17 +91,3 @@ class PropertiesData():
         self.periods = [ ]
         for p in properties_data[PropertiesData.Keys.periods]:
             self.periods.append(Period(p))
-
-    def to_dict(self) -> dict[str, Any]:
-        periods_in_list = [ ]
-        for p in self.periods:
-            periods_in_list.append(p.to_dict())
-        return {
-            PropertiesData.Keys.units: self.units,
-            PropertiesData.Keys.forecastGenerator: self.forecastGenerator,
-            PropertiesData.Keys.generatedAt: self.generatedAt,
-            PropertiesData.Keys.updateTime: self.updateTime,
-            PropertiesData.Keys.validTimes: self.validTimes,
-            PropertiesData.Keys.elevation.key: self.elevation.to_dict(),
-            PropertiesData.Keys.periods : periods_in_list
-        }

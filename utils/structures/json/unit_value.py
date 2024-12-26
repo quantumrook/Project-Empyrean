@@ -49,9 +49,15 @@ class UnitValue():
     def get_value(self):
         match self.value_type:
             case Value_Type.INTEGER:
-                return int(self.value)
+                if self.value != "None":
+                    return int(self.value)
+                else:
+                    return 0
             case Value_Type.FLOAT:
-                return float(self.value)
+                if self.value != "None":
+                    return float(self.value)
+                else:
+                    return 0
             case _:
                 return self.value
 

@@ -1,23 +1,28 @@
 import tkinter as tk
 
 import TKinterModernThemes as TKMT
+from utils.download.request_type import RequestType
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
+from utils.structures.forecast.forecast_type import ForecastType
 from utils.structures.location.location import Location
 from utils.text_wrapper import *
 
 
 class Hourly_DisplayFrame(TKMT.WidgetFrame):
-    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location):
+    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location, control_buttons: dict[str, tk.Button]):
         super().__init__(master, name)
 
         self.hourly_forecast: EmpyreanForecast = hourly
         self.extended_forecast: EmpyreanForecast = extended
         self.location: Location = location
+        self.control_buttons = control_buttons
         
         if hourly is not None and extended is not None:
             self._setup_info_display()
             self._setup_tree_display()
             self.master.info_frame.makeResizable()
+
+        
 
     def _setup_info_display(self) -> None:
 
@@ -97,4 +102,8 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 rowspan = 1,
                 sticky = tk.EW
             )
-        
+    
+    def refresh(self) -> None:
+        self._setup_info_display()
+        self._setup_tree_display()
+        self.master.info_frame.makeResizable()

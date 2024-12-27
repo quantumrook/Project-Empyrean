@@ -76,4 +76,8 @@ class Extended_DisplayFrame(TKMT.WidgetFrame):
                 rowspan = 1,
                 sticky = tk.EW
             )
-        
+    
+    def refresh(self) -> None:
+        self._setup_info_display()
+        self._setup_tree_display()
+        self.master.info_frame.makeResizable()

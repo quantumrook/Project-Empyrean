@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class WidgetType(Enum):
     BUTTON          = auto()
     CANVAS          = auto()

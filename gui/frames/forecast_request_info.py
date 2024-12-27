@@ -2,10 +2,9 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from gui.empyrean.labelframe import LabelFrame
-
-from utils.WidgetEnum import WidgetType
-from utils.gridplacement import GridPlacement
-from utils.json.location import Location
+from gui.widget_enum import WidgetType
+from utils.structures.grid_placement import GridPlacement
+from utils.structures.location.location import Location
 
 
 class ForecastRequestInfo_LabelFrame(LabelFrame):

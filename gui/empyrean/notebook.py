@@ -1,7 +1,8 @@
 from tkinter import ttk
 
-from utils.gridplacement import *
-from utils.WidgetEnum import *
+from gui.widget_enum import WidgetType
+from utils.structures.grid_placement import GridPlacement
+
 
 class Notebook(ttk.Notebook):
 

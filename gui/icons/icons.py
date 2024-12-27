@@ -1,8 +1,8 @@
-from utils.private import *
+from utils.private.private import directory_paths
 
 icons = {
-    "popout"    : f'{project_directory_path}\\Project-Empyrean\\gui\\icons\\expand-in-new-window.png',  
+    "popout"    : f'{directory_paths["icons"]}\\expand-in-new-window.png',  
     #https://www.flaticon.com/free-icons/pop-out created by Freepik - Flaticon
-    "download"  : f'{project_directory_path}\\Project-Empyrean\\gui\\icons\\download.png',              
+    "download"  : f'{directory_paths["icons"]}\\download.png',              
     #https://www.flaticon.com/free-icons/obtain  created by meaicon - Flaticon
 }

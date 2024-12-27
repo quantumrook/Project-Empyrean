@@ -2,8 +2,9 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
 
-from utils.gridplacement import *
-from utils.WidgetEnum import *
+from gui.widget_enum import WidgetType
+from utils.structures.grid_placement import GridPlacement
+
 
 class LabelFrame(ttk.Labelframe):
 

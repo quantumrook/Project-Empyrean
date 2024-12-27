@@ -94,7 +94,7 @@ class ForecastViewer_Notebook(Notebook):
         if self.request_window is None:
             self.request_window = RequestThreadManager_Window()
             self._monitor_requests()
-            self.request_window.start_download(location=self.location, forecast_request_type=request_type)
+            self.request_window.enqueue_download(location=self.location, forecast_request_type=request_type)
         else:
             messagebox.showerror("Download in progress", "Please wait for the current download to finish before requesting another.")
 

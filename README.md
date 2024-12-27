@@ -1,9 +1,9 @@
 # Project-Empyrean
  Personal use Weather Forecaster
 
-[hourly preview](/previews/hourly_preview.png)
+![hourly preview](/previews/hourly_preview.png)
 
-[extended preview](/previews/extended_preview.png)
+![extended preview](/previews/extended_preview.png)
 
 # Attribution
 

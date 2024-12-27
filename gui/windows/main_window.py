@@ -1,19 +1,18 @@
 
 import tkinter as tk
 from typing import Any
-from PIL import Image, ImageTk
 import TKinterModernThemes as TKMT
 
+from gui.frames.control_button_frame import ControlButtons_Frame
 from gui.frames.forecast.extended_display import Extended_DisplayFrame
 from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
-from gui.icons.icons import icons
 from gui.windows.request_manager import RequestThreadManager_Window
 
 from utils.download.download_status import DownloadStatus
 from utils.download.request_type import RequestType
 from utils.private.private import directory_paths
 from utils.reader import *
-from utils.structures.datetime import EmpyreanDateTime, TODAY
+from utils.structures.datetime import TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.text_wrapper import *
@@ -39,8 +38,15 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.forecasts: dict[str, dict[ForecastType, EmpyreanForecast]] = { }
         self.load_private_data()
 
-        self.control_frame = self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.E)
-        self.add_control_buttons()
+        self.controlbuttons_frame = ControlButtons_Frame(
+            master=self.root, 
+            frame=self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.E), 
+            commands={
+                    "popout" : lambda: self._on_click_get_markdown(),
+                    "download" : lambda: self._on_click_get_forecast()
+                }
+            )
+
 
         self.frame = self.addFrame('forecastStuff', row=1, col=0, padx=0, pady=10, sticky=tk.NSEW)
         self.add_forecast_notebook()
@@ -59,23 +65,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             self.forecasts[location.alias] = { }
             for forecast_type in ForecastType.list():
                 self.forecasts[location.alias][forecast_type] = None
-    
-    def add_control_buttons(self) -> None:
-
-        images = { }
-        for icon_name, icon_path in icons.items():
-            img = Image.open(icon_path)
-            img = img.resize((24, 24), Image.Resampling.LANCZOS)
-            images[icon_name] = ImageTk.PhotoImage(img)
-
-        row_counter = 0
-        self.control_buttons = { }
-        for name, img in images.items():
-            button = self.control_frame.Button("", None, row=0, col=row_counter, widgetkwargs={"image" : img, "name" : name})
-            button.image = img
-            row_counter += 1
-
-            self.control_buttons[name] = button
 
     def add_forecast_notebook(self) -> None:
         self.forecast_notebook = self.frame.Notebook(
@@ -90,8 +79,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.forecast_notebooks = { }
 
         self.display_frames = { }
-
-        today = EmpyreanDateTime()
 
         forecast_types = ForecastType.list()
         for location in self.locations:
@@ -110,14 +97,14 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             
             self.display_frames[f'{location.alias}'] = { }
 
-            hourly = self.try_get_data(location.name, ForecastType.HOURLY.value, today.date)
-            extended = self.try_get_data(location.name, ForecastType.EXTENDED.value, today.date)
+            hourly = self.try_get_data(location.name, ForecastType.HOURLY.value, TODAY.date)
+            extended = self.try_get_data(location.name, ForecastType.EXTENDED.value, TODAY.date)
             for forecast_type in forecast_types:
                 subframe = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
                 subframe.name = f"sub{location.alias}"    
                 match forecast_type:
                     case ForecastType.HOURLY:
-                        self.display_frames[f'{location.alias}'][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location, self.control_buttons)
+                        self.display_frames[f'{location.alias}'][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
                     case ForecastType.EXTENDED:
                         self.display_frames[f'{location.alias}'][forecast_type] =  Extended_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
                 self.forecast_notebooks[f'{location.alias}'].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
@@ -134,55 +121,25 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             return None
 
     def on_location_tab_change(self, event):
-        if self.control_buttons is not None:
-            self.unbind_buttons()
-        
-        print(f"Was: {self.active_location.alias}")
         for location in self.locations:
             if event.widget.tab('current')['text'] == location.name:
                 self.active_location = location
 
-        print(f"Now: {self.active_location.alias}")
-
-        if self.control_buttons is not None:
-            self.bind_buttons()
+        self.i_need_a_name()
 
     def on_tab_change(self, event):
-        if self.control_buttons is not None:
-            self.unbind_buttons()
+        self.i_need_a_name()
 
-        print(f"Was: {self.current_tab}")
-        self.current_tab = self.active_location.alias + event.widget.tab('current')['text']
-        print(f"Now: {self.current_tab}")
-        
-        if self.control_buttons is not None:
-            self.bind_buttons()
-
-
-    def bind_buttons(self):
-        has_data = False
+    def i_need_a_name(self):
+        new_download_button_state = 'normal'
         for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
-            display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
-            display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
+            if display_frame.hourly_forecast is None:
+                display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
+            if display_frame.extended_forecast is None:
+                display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
-                has_data = True
-
-        download_state = 'normal'
-        if has_data == True:
-            download_state = 'disabled'
-
-        for name, button_widget in self.control_buttons.items():
-            for forecast_type in ForecastType.list():
-                if self.current_tab == (f'{self.locations[self.current_location_index].alias}' + f'{forecast_type.value.title()}'):
-                    if name == 'Popout'.lower():
-                        button_widget.configure(command = lambda: self._on_click_get_markdown())
-                    elif name == 'Download'.lower():
-                        button_widget['state'] = download_state
-                        button_widget.configure(command = lambda: self._on_click_get_forecast())
-
-    def unbind_buttons(self):
-        for _, button in self.control_buttons.items():
-            button.configure(command = None)
+                new_download_button_state = 'disabled'
+        self.controlbuttons_frame.toggle_download_button_state(new_download_button_state)
 
     def _on_click_get_markdown(self):
         print(f'Current view: {self.locations[self.current_location_index].alias}: {self.current_tab}')
@@ -196,7 +153,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         for type in [RequestType.HOURLY, RequestType.EXTENDED]:
             
-            # TODO:: Check if the forecast has already been downloaded (e.g., earlier today)
+            # TODO:: Check if the forecast has already been downloaded (e.g., earlier TODAY)
             # TODO:: Check if the forecast is still valid
 
             if self.request_window is None:
@@ -223,7 +180,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
             self.request_window.destroy()
             self.request_window = None
-            self.unbind_buttons()
-            self.bind_buttons()
+            self.i_need_a_name()
         else:
             self.root.after(1000, self._monitor_requests)

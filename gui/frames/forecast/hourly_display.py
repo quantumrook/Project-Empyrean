@@ -9,13 +9,12 @@ from utils.text_wrapper import *
 
 
 class Hourly_DisplayFrame(TKMT.WidgetFrame):
-    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location, control_buttons: dict[str, tk.Button]):
+    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location):
         super().__init__(master, name)
 
         self.hourly_forecast: EmpyreanForecast = hourly
         self.extended_forecast: EmpyreanForecast = extended
         self.location: Location = location
-        self.control_buttons = control_buttons
         
         if hourly is not None and extended is not None:
             self._setup_info_display()

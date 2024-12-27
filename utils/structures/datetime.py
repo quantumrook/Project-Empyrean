@@ -92,10 +92,6 @@ class EmpyreanDateTime():
     def add_days(empyrean_datetime: Self, days: int) -> Self:
         return EmpyreanDateTime.from_datetime(empyrean_datetime.date_time + timedelta(days=days))
     
-    @staticmethod
-    def now() -> Self:
-        return EmpyreanDateTime()
-    
     def hour(self) -> int:
         return self.time.split(":")[0]
 

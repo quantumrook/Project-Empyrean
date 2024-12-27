@@ -13,7 +13,7 @@ from utils.download.download_status import DownloadStatus
 from utils.download.request_type import RequestType
 from utils.private.private import directory_paths
 from utils.reader import *
-from utils.structures.datetime import EmpyreanDateTime
+from utils.structures.datetime import EmpyreanDateTime, TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.text_wrapper import *
@@ -162,8 +162,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     def bind_buttons(self):
         has_data = False
         for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
-            display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, EmpyreanDateTime.now().date)
-            display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, EmpyreanDateTime.now().date)
+            display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
+            display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
                 has_data = True
 
@@ -217,8 +217,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             print("Save Complete - Displaying data.")
 
             for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
-                display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, EmpyreanDateTime.now().date)
-                display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, EmpyreanDateTime.now().date)
+                display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
+                display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
                 display_frame.refresh()
 
             self.request_window.destroy()

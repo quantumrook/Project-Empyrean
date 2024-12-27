@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Self
 
-from utils.structures.datetime import EmpyreanDateTime
+from utils.structures.datetime import EmpyreanDateTime, TODAY
 from utils.structures.forecast.api.forecast import PropertiesData
 from utils.structures.forecast.empyrean.content import EmpyreanForecastContent
 from utils.structures.forecast.empyrean.forecast_entry import EmpyreanForecastEntry
@@ -52,10 +52,9 @@ class EmpyreanForecast():
         return forecast_for_range
 
     def to_hourly_tree_dict(self) -> list[dict[str, Any]]:
-        now = EmpyreanDateTime.now()
         date_entry = None
         for entry in self.forecasts:
-            if entry.start.date == now.date and entry.start.hour() >= now.hour():
+            if entry.start.date == TODAY.date and entry.start.hour() >= TODAY.hour():
                 open_flag = True
                 if date_entry is None:
                     date_entry = TreeEntry(name=entry.start.date, is_open=open_flag, subdata=[ ])
@@ -71,11 +70,10 @@ class EmpyreanForecast():
     
     def to_extended_tree_dict(self) -> list[dict[str, Any]]: 
         entries = [ ]
-        today = EmpyreanDateTime.now().date
         new_date = True
         date_entry = None
         for entry in self.forecasts:
-            if entry.start.date == today:
+            if entry.start.date == TODAY.date:
                 open_flag = True
             else:
                 open_flag = False

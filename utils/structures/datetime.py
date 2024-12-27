@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Self
 
-import pytz as tz
 from pytz import timezone
 from utils.private.private import user_default_timezone
 
@@ -99,3 +98,5 @@ class EmpyreanDateTime():
     
     def hour(self) -> int:
         return self.time.split(":")[0]
+
+TODAY = EmpyreanDateTime()

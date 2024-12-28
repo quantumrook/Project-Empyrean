@@ -38,9 +38,10 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.forecasts: dict[str, dict[ForecastType, EmpyreanForecast]] = { }
         self.load_private_data()
 
+        self.controlbuttons_container = self.addFrame(name='cb_frame', row=0, col=0)
         self.controlbuttons_frame = ControlButtons_Frame(
-            master=self.root, 
-            frame=self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.E), 
+            master= self.controlbuttons_container, 
+            frame= self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.E), 
             commands={
                     "popout" : lambda: self._on_click_get_markdown(),
                     "download" : lambda: self._on_click_get_forecast()
@@ -97,10 +98,10 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             
             self.display_frames[f'{location.alias}'] = { }
 
-            hourly = self.try_get_data(location.name, ForecastType.HOURLY.value, TODAY.date)
-            extended = self.try_get_data(location.name, ForecastType.EXTENDED.value, TODAY.date)
+            hourly = None#self.try_get_data(location.name, ForecastType.HOURLY.value, TODAY.date)
+            extended = None#self.try_get_data(location.name, ForecastType.EXTENDED.value, TODAY.date)
             for forecast_type in forecast_types:
-                subframe = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
+                subframe: TKMT.WidgetFrame = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
                 subframe.name = f"sub{location.alias}"    
                 match forecast_type:
                     case ForecastType.HOURLY:
@@ -124,19 +125,19 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         for location in self.locations:
             if event.widget.tab('current')['text'] == location.name:
                 self.active_location = location
-
-        self.i_need_a_name()
+        print(f"{self.active_location.alias=}")
+        # self.trigger_forecast_load()
 
     def on_tab_change(self, event):
-        self.i_need_a_name()
+        self.trigger_forecast_load()
 
-    def i_need_a_name(self):
+    def trigger_forecast_load(self):
         new_download_button_state = 'normal'
         for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
-            if display_frame.hourly_forecast is None:
-                display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
-            if display_frame.extended_forecast is None:
-                display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
+            if display_frame.hourly_forecast is None and display_frame.extended_forecast is None:
+                hourly = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
+                extended = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
+                display_frame.update(hourly, extended)
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
                 new_download_button_state = 'disabled'
         self.controlbuttons_frame.toggle_download_button_state(new_download_button_state)
@@ -173,13 +174,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
 
-            for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
-                display_frame.hourly_forecast = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
-                display_frame.extended_forecast = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
-                display_frame.refresh()
-
             self.request_window.destroy()
             self.request_window = None
-            self.i_need_a_name()
+            self.trigger_forecast_load()
         else:
             self.root.after(1000, self._monitor_requests)

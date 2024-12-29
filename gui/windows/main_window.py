@@ -23,6 +23,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     locations: list[Location] = [ ]
     current_location_index = 0
 
+    previous_location: Location = None
     active_location: Location = None
     display_frames: dict[Location, dict[ForecastType, Any]] = None
 
@@ -46,7 +47,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                     "popout" : lambda: self._on_click_get_markdown(),
                     "download" : lambda: self._on_click_get_forecast()
                 },
-            root= self.root
+            root_window= self
             )
 
         self.frame = self.addFrame('forecastStuff', row=1, col=0, padx=0, pady=10, sticky=tk.NSEW)
@@ -67,22 +68,29 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
     def add_forecast_notebook(self) -> None:
         self.forecast_notebook = self.frame.Notebook(
-                name = f"",
+                name = f"forecastViewer",
                 row = 0,
                 col = 0,
                 sticky = "nsew",
                 padx=0,
                 pady=0
             )
-        self.forecast_notebook.notebook.name ="woof"
+        self.forecast_notebook.notebook.name ="tkForecastViewer"
         self.forecast_notebooks = { }
 
         self.display_frames = { }
 
-        forecast_types = ForecastType.list()
+        self.add_new_location_tab()
+        self.forecast_notebook.notebook.bind('<<NotebookTabChanged>>', self.on_location_tab_change)
+        self.active_location = self.locations[0]
+
+    def add_new_location_tab(self):
         for location in self.locations:
-            frame = self.forecast_notebook.addTab(f"{location.name}")
-            
+            if location.alias in self.forecast_notebooks.keys():
+                continue
+
+            frame = self.forecast_notebook.addTab(location.name)
+            frame.name = location.name
             self.forecast_notebooks[f'{location.alias}'] = frame.Notebook(
                 name = f"sub{location.alias}",
                 row=0,
@@ -92,13 +100,11 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                 pady=0
             )
 
-            self.forecast_notebooks[f'{location.alias}'].notebook.name = f"{location.alias}"
-            
             self.display_frames[f'{location.alias}'] = { }
 
-            hourly = None#self.try_get_data(location.name, ForecastType.HOURLY.value, TODAY.date)
-            extended = None#self.try_get_data(location.name, ForecastType.EXTENDED.value, TODAY.date)
-            for forecast_type in forecast_types:
+            hourly = None
+            extended = None
+            for forecast_type in ForecastType.list():
                 subframe: TKMT.WidgetFrame = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
                 subframe.name = f"sub{location.alias}"    
                 match forecast_type:
@@ -107,8 +113,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                     case ForecastType.EXTENDED:
                         self.display_frames[f'{location.alias}'][forecast_type] =  Extended_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
                 self.forecast_notebooks[f'{location.alias}'].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
-        self.forecast_notebook.notebook.bind('<<NotebookTabChanged>>', self.on_location_tab_change)
-        self.active_location = self.locations[0]
 
     def try_get_data(self, location_name: str, forecast_type: str, date:str) -> None:
         file_path = f'{directory_paths["forecasts"]}\\{location_name}\\{forecast_type.title()}\\{date}.json'
@@ -122,9 +126,12 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     def on_location_tab_change(self, event):
         for location in self.locations:
             if event.widget.tab('current')['text'] == location.name:
-                self.active_location = location
-        print(f"{self.active_location.alias=}")
-        # self.trigger_forecast_load()
+                if self.previous_location is None:
+                    self.previous_location = self.active_location
+                elif self.active_location != location:
+                    self.previous_location = self.active_location
+                    self.active_location = location
+                    self.trigger_forecast_load()
 
     def on_tab_change(self, event):
         self.trigger_forecast_load()
@@ -163,7 +170,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             else:
                 print(f'Forecast Request: {request_type.value} @ {self.active_location.alias}')
                 self.request_window.enqueue_download(location=self.active_location, forecast_request_type=type)
-            # messagebox.showerror("Download in progress", "Please wait for the current download to finish before requesting another.")
 
         self.request_window.monitor_queue()
         self._monitor_requests()

@@ -10,12 +10,12 @@ from utils.download.request_type import RequestType
 from utils.structures.forecast.api.forecast import PropertiesData
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.location.location import Location
-from utils.writer import save_forecast_data
+from utils.writer import save_forecast_data, save_location_data
 
 
 class RequestThreadManager_Window(tk.Toplevel):
 
-    max_thread_count = 3    
+    max_thread_count = 5    
     queue: list[RequestThread] = [ ]
 
     stepsize: int = 0
@@ -27,7 +27,13 @@ class RequestThreadManager_Window(tk.Toplevel):
         self.forecast_to_save:   EmpyreanForecast = None
         self.request_type:       RequestType = RequestType.POINTS
         self.download_status:    DownloadStatus = DownloadStatus.INSTANTIATING
+        self.location_properties = { 
+            Location.Keys.alias : "",
+            Location.Keys.name : "",
+            Location.Keys.timezone : ""
+        }
 
+        self.new_location: Location = None
         self.status_text_log = ScrolledText(self)
         self.status_text_log.grid(column=0, row=0)
 
@@ -45,17 +51,17 @@ class RequestThreadManager_Window(tk.Toplevel):
         time.sleep(1)
         if (download_thread.request_type == RequestType.POINTS):
             # TODO:: update private.json with data from this request
-            print("Requested Point Data, faking save")
+            self.new_location = save_location_data(download_thread.response_json, self.location_properties)
         else:
             api_data = PropertiesData(download_thread.response_json["properties"])
             self.forecast_to_save = EmpyreanForecast.from_API(api_data)
-        save_forecast_data(download_thread.location, self.forecast_to_save)
+            save_forecast_data(download_thread.location, self.forecast_to_save)
         time.sleep(1)
         download_thread.status = DownloadStatus.SAVE_COMPLETE
 
     def enqueue_download(self, location: Location, forecast_request_type: RequestType):
         self.request_type = forecast_request_type
-        print(f"Download Started for ({location.name}) of type ({forecast_request_type.name}).")
+        print(f"Download Started for ({location.name}) of type ({forecast_request_type.value}).")
         new_download_thread = RequestThread(location, forecast_request_type)
         new_download_thread.name = f'{forecast_request_type}-{location.alias}'
 

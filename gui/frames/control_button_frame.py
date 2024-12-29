@@ -4,7 +4,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import tksvg
 from gui.icons.icons import png_icons, svg_icons
-from gui.windows.location_window import NewLocation_Window
+from gui.windows.location_window import NewLocation_Window, Themed_NewLocation_Window
 
 
 class ControlButtons_Frame():
@@ -57,4 +57,4 @@ class ControlButtons_Frame():
         self.buttons["download"]['state'] = new_state
 
     def on_location_click(self):
-        self.location_window = NewLocation_Window(self.app_root)
+        self.location_window = Themed_NewLocation_Window("Add a new location")

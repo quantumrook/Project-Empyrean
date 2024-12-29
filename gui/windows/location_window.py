@@ -1,43 +1,37 @@
 import tkinter as tk
+import TKinterModernThemes as TKMT
 
-class NewLocation_Window(tk.Toplevel):
+class Themed_NewLocation_Window(TKMT.ThemedTKinterFrame):
 
-    def __init__(self, master):
-        super().__init__(master)
-        self.app_root = master
-        self.title("Add a new Location")
-        
+    def __init__(self, title, theme = '', mode = '', usecommandlineargs=True, useconfigfile=True):
+        super().__init__(title, theme, mode, usecommandlineargs, useconfigfile)
+
         self.center_window()
         self.lat_lon_frame()
-        
-
 
     def center_window(self):
-        self.width = 400
+        self.width = 500
         self.height = 300
 
-        screen_width = self.app_root.winfo_screenwidth()
-        screen_height = self.app_root.winfo_screenheight()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
         x = int((screen_width/2) - (self.width/2))
         y = int((screen_height/2) - (self.height/2))
 
-        self.geometry(f"{self.width}x{self.height}+{x}+{y}")
+        self.root.geometry(f"{self.width}x{self.height}+{x}+{y}")
 
     def lat_lon_frame(self):
 
         self.latitude_var = tk.StringVar()
         self.longitude_var = tk.StringVar()
 
-        lblFrame = tk.LabelFrame(self, text="By Latitude and Longitude")
-        lblFrame.grid(row=0, column=0, padx=10, pady=10, sticky=tk.EW)
+        
+        lblFrame = self.addLabelFrame(text="By Latitude and Longitude", row=0, col=0, sticky=tk.EW)
 
-        tk.Label(lblFrame, text="Latitude:").grid(row=0, column=0)
-        lat_entry = tk.Entry(lblFrame, textvariable=self.latitude_var)
-        lat_entry.grid(row=0, column=1)
+        lblFrame.Label(text="Latitude:", row=0, col=0, weight="normal")
+        lat_entry = lblFrame.Entry(textvariable=self.latitude_var, row=0, col=1)
 
-        tk.Label(lblFrame, text="Longitude:").grid(row=1, column=0)
-        lon_entry = tk.Entry(lblFrame, textvariable=self.longitude_var)
-        lon_entry.grid(row=1, column=1)
+        lblFrame.Label(text="Longitude", row=1, col=0, weight="normal")
+        lon_entry = lblFrame.Entry(textvariable=self.longitude_var, row=1, col=1)
 
-        button = tk.Button(lblFrame, text="Verify")
-        button.grid(row=0, rowspan=2, column=2)
+        button = lblFrame.Button(text="Verify", command=None, row=0, rowspan=2, col=2)

@@ -15,7 +15,7 @@ class EmpyreanDateTime():
     datetime_format:    str      = "%Y-%m-%d %H:%M"
     default_timezone:   timezone = timezone(user_default_timezone)
 
-    def __init__(self, location_timezone: str = '') -> None:
+    def __init__(self, location_timezone: str = '', today=False) -> None:
 
         self.date_time: datetime = None
         self.date: str           = ""
@@ -24,9 +24,10 @@ class EmpyreanDateTime():
         
         if location_timezone:
             self.time_zone: timezone = timezone(location_timezone)
-            
-        #default to now, for the case where nothing is given
-        EmpyreanDateTime.__localize(datetime.now(), self)
+
+        if today == True:
+            #default to now, for the case where nothing is given
+            EmpyreanDateTime.__localize(datetime.now(), self)
     
     @staticmethod
     def __localize(original_dt: datetime, instance: Self) -> None:
@@ -95,4 +96,4 @@ class EmpyreanDateTime():
     def hour(self) -> int:
         return self.time.split(":")[0]
 
-TODAY = EmpyreanDateTime()
+TODAY = EmpyreanDateTime(today=True)

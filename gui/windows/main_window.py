@@ -1,5 +1,6 @@
 
 import tkinter as tk
+from tkinter import messagebox
 from typing import Any
 import TKinterModernThemes as TKMT
 
@@ -12,7 +13,7 @@ from utils.download.download_status import DownloadStatus
 from utils.download.request_type import RequestType
 from utils.private.private import directory_paths
 from utils.reader import *
-from utils.structures.datetime import TODAY
+from utils.structures.datetime import TODAY, EmpyreanDateTime
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.text_wrapper import *
@@ -153,26 +154,31 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
     def _on_click_get_forecast(self):
 
-        request_type = RequestType.POINTS
+        if self.__points_is_valid() == False:
 
-        # TODO:: Check if Points Data needs to be refreshed
+            self.request_window = RequestThreadManager_Window()
+            print(f'Forecast Request: {RequestType.POINTS.value} @ {self.active_location.alias}')
+            self.request_window.enqueue_download(self.active_location, RequestType.POINTS)
 
-        for type in [RequestType.HOURLY, RequestType.EXTENDED]:
-            
-            # TODO:: Check if the forecast has already been downloaded (e.g., earlier TODAY)
+            #TODO :: Add in option to bypass points request anyways?
+
+        for request_type in [RequestType.HOURLY, RequestType.EXTENDED]:
+            forecast_type = ForecastType.from_string(request_type)
+            if self.display_frames[self.active_location.alias][forecast_type].hourly_forecast is not None and self.display_frames[self.active_location.alias][forecast_type].extended_forecast is not None:
+                #TODO :: Display a message?
+                messagebox.showinfo("Forecast Information", "You already have today's forecast.")
+                continue
             # TODO:: Check if the forecast is still valid
 
             if self.request_window is None:
                 self.request_window = RequestThreadManager_Window()
-                
-                print(f'Forecast Request: {request_type.value} @ {self.active_location.alias}')
-                self.request_window.enqueue_download(location=self.active_location, forecast_request_type=type)
-            else:
-                print(f'Forecast Request: {request_type.value} @ {self.active_location.alias}')
-                self.request_window.enqueue_download(location=self.active_location, forecast_request_type=type)
 
-        self.request_window.monitor_queue()
-        self._monitor_requests()
+            print(f'Forecast Request: {request_type.value} @ {self.active_location.alias}')
+            self.request_window.enqueue_download(location=self.active_location, forecast_request_type=request_type)
+
+        if self.request_window is not None:
+            self.request_window.monitor_queue()
+            self._monitor_requests()
 
     def _monitor_requests(self):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
@@ -183,3 +189,16 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             self.trigger_forecast_load()
         else:
             self.root.after(1000, self._monitor_requests)
+
+    def __points_is_valid(self) -> bool:
+        date, time = self.active_location.api_grid.lastverified.split(' ')
+        last_verified = EmpyreanDateTime.from_Empyrean({
+            EmpyreanDateTime.Keys.time_zone : self.active_location.timezone,
+            EmpyreanDateTime.Keys.date : date,
+            EmpyreanDateTime.Keys.time : time
+            })
+        return EmpyreanDateTime.is_in_range(
+                questionable_datetime=TODAY, 
+                starting_datetime=last_verified, 
+                ending_datetime=EmpyreanDateTime.add_days(last_verified, 14)
+            )

@@ -41,13 +41,13 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.controlbuttons_container = self.addFrame(name='cb_frame', row=0, col=0)
         self.controlbuttons_frame = ControlButtons_Frame(
             master= self.controlbuttons_container, 
-            frame= self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.E), 
+            frame= self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.EW), 
             commands={
                     "popout" : lambda: self._on_click_get_markdown(),
                     "download" : lambda: self._on_click_get_forecast()
-                }
+                },
+            root= self.root
             )
-
 
         self.frame = self.addFrame('forecastStuff', row=1, col=0, padx=0, pady=10, sticky=tk.NSEW)
         self.add_forecast_notebook()
@@ -56,8 +56,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.root.rowconfigure(1, weight=9)
 
         self.request_window = None
-
-        self.run()
 
     def load_private_data(self) -> None:
         self.locations = get_private_data(filename=f'{directory_paths["private"]}\\private.json')

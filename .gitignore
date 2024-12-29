@@ -155,4 +155,6 @@ cython_debug/
 Forecasts/*
 utils/private/*
 gui/icons/*.png
+gui/icons/weather-icons-svg/*
 utils/json/test_data/raw_forecast.json
+*.svg

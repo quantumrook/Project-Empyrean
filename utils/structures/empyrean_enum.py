@@ -1,10 +1,12 @@
 from enum import Enum
+from functools import cache
 from typing import Any, Self
 
 
 class EmpyreanEnum(Enum):
 
-    @classmethod
+    @classmethod 
+    @cache
     def list(cls) -> list[Self]:
         """
         Returns all of the types as a list.
@@ -30,6 +32,7 @@ class EmpyreanEnum(Enum):
             return False
 
     @classmethod
+    @cache
     def max_value(cls) -> Any:
         current_max = None
         for enum in cls.list():
@@ -44,6 +47,7 @@ class EmpyreanEnum(Enum):
             return cls.list()[-1].value
 
     @classmethod
+    @cache
     def min_value(cls) -> Any:
         current_min = None
         for enum in cls.list():

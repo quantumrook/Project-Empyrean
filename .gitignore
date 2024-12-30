@@ -157,3 +157,6 @@ utils/private/*
 utils/json/test_data/raw_forecast.json
 *.svg
 *.png
+.prof_stats
+profiling_stats.txt
+program.prof

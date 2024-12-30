@@ -57,7 +57,7 @@ class At_A_Glance_Frame(TKMT.WidgetFrame):
         just_hour = tk.IntVar()
         hour = int(TODAY.hour())
         just_hour.set(hour)
-        self.frame.hour_progressbar = self.Progressbar(just_hour, mode='determinate', lower=5, upper=18, row=1, col=1, colspan=12, padx=10, pady=0)
+        self.hour_progressbar = self.frame.Progressbar(just_hour, mode='determinate', lower=5, upper=18, row=1, col=1, colspan=12, padx=10, pady=0)
 
         for col in range(6,18):
             hour_normalized = col

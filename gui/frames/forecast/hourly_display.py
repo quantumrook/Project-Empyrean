@@ -2,6 +2,7 @@ import tkinter as tk
 
 import TKinterModernThemes as TKMT
 from utils.download.request_type import RequestType
+from utils.structures.datetime import TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.structures.location.location import Location
@@ -22,7 +23,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         
         self.location: Location = location
         
-        self.master.info_frame = self.master.addFrame("")
+        self.master.info_frame = self.master.addFrame("",row=0,col=0, colspan=2)
         self.master.info_frame.makeResizable()
 
         self.treeview = None
@@ -108,11 +109,44 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 sticky = tk.EW
             )
     
+    def _setup_plots_frame(self) -> None:
+        is_first_hour = True
+        every_four_hours = [ ]
+        hours = [ ]
+        temps = [ ]
+        rain = [ ]
+        for forecast in self.hourly_forecast.forecasts:
+            if forecast.start.date == TODAY.date:
+                hour = int(forecast.start.hour().split(":")[0])
+                if hour > 0 and is_first_hour:
+                        every_four_hours.append(hour)
+                        is_first_hour = False
+                if hour % 4 == 0:
+                    every_four_hours.append(hour)
+                hours.append(hour)
+                temps.append(int(forecast.content.temperature.get_value()))
+                rain.append(int(forecast.content.rainChance.get_value()))
+
+
+        self.temperatureframe = self.master.addLabelFrame("Temperature vs Time", row=1, col=0)
+        self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
+        self.temperature_ax.scatter(hours, temps, c=self.accent)
+        self.temperature_ax.plot(hours, temps)
+        self.temperature_ax.set_xticks(every_four_hours)
+        self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
+        
+        self.rainframe = self.master.addLabelFrame("Rain Chance vs Time", row=1, col=1)
+        self.rain_canvas, fig2, self.rain_ax, _, _ = self.rainframe.matplotlibFrame("Rain Chance vs Time")
+        self.rain_ax.set_ylabel("Rain Chance %")
+        self.rain_ax.set_xticks(every_four_hours)
+        self.rain_ax.plot(hours, rain, c=self.accent)
+
     def refresh(self) -> None:
         if self.is_stale["hourly"]:
             # if self.treeview is not None:
             #     self.treeview.destroy()
-            self._setup_tree_display()
+            #self._setup_tree_display()
+            self._setup_plots_frame()
         
         if self.is_stale["extended"]:
             # widgets = self.master.info_frame.widgets
@@ -133,7 +167,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         self.extended_forecast = extended
         self.is_stale["extended"] = True
 
-    def update(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
+    def update_data(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
         self.update_hourly(hourly)
         self.update_extended(extended)
         self.refresh()

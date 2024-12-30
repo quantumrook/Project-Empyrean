@@ -63,7 +63,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         self.request_window = None
 
-        self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1)
+        self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1,pady=2)
         self.build_at_a_glance()
         self.is_playing = False
 
@@ -153,7 +153,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             if display_frame.hourly_forecast is None and display_frame.extended_forecast is None:
                 hourly = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
                 extended = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
-                display_frame.update(hourly, extended)
+                display_frame.update_data(hourly, extended)
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
                 new_download_button_state = 'disabled'
         self.controlbuttons_frame.toggle_download_button_state(new_download_button_state)

@@ -110,7 +110,7 @@ class Extended_DisplayFrame(TKMT.WidgetFrame):
         self.extended_forecast = extended
         self.is_stale["extended"] = True
 
-    def update(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
+    def update_data(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
         self.update_hourly(hourly)
         self.update_extended(extended)
         self.refresh()

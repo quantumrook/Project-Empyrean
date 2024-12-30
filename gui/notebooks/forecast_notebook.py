@@ -1,6 +1,7 @@
 
 import TKinterModernThemes as TKMT
 
+from gui.frames.at_a_glance_frame import At_A_Glance_Frame
 from gui.frames.forecast.extended_display import Extended_DisplayFrame
 from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
 from utils.structures.forecast.forecast_type import ForecastType
@@ -9,8 +10,10 @@ from utils.structures.watched_variable import WatchedVariable
 
 class Forecast_Notebook(TKMT.WidgetFrame):
 
-    def __init__(self, master, name, location: Location):
+    def __init__(self, master, name, location: Location, at_a_glance: At_A_Glance_Frame):
         super().__init__(master, name)
+
+        self.at_a_glance = at_a_glance
 
         self.notebook = self.master.Notebook(name)
         self.notebook.notebook.name = name
@@ -39,7 +42,7 @@ class Forecast_Notebook(TKMT.WidgetFrame):
         if self.is_first_view:
             self.hourly_tab = self.notebook.addTab(ForecastType.HOURLY.value.title())
             self.extended_tab = self.notebook.addTab(ForecastType.EXTENDED.value.title())
-            self.hourly_tab = Hourly_DisplayFrame(self.hourly_tab.master, f'{self.location.alias}HourlyDisplayFrame', self.location)       
+            self.hourly_tab = Hourly_DisplayFrame(self.hourly_tab.master, f'{self.location.alias}HourlyDisplayFrame', self.location, self.at_a_glance)       
             self.extended_tab = Extended_DisplayFrame(self.extended_tab.master, f'{self.location.alias}ExtendedDisplayFrame', self.location)
             self.is_first_view = False
             

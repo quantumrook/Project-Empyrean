@@ -1,13 +1,14 @@
 
 import TKinterModernThemes as TKMT
 import tkinter as tk
+from gui.frames.at_a_glance_frame import At_A_Glance_Frame
 from gui.notebooks.forecast_notebook import Forecast_Notebook
 from utils.structures.location.location import Location
 from utils.structures.watched_variable import WatchedVariable
 
 class Location_Notebook(TKMT.WidgetFrame):
 
-    def __init__(self, master, name, locations: list[Location]):
+    def __init__(self, master, name, locations: list[Location], at_a_glance: At_A_Glance_Frame):
         super().__init__(master, name)
 
         self.locations = locations
@@ -26,15 +27,17 @@ class Location_Notebook(TKMT.WidgetFrame):
 
         self.location_tabs = { }
 
-        self.add_new_location_tab()
+        self.add_new_location_tab(at_a_glance)
         self.notebook.notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
-    def add_new_location_tab(self):
+    def add_new_location_tab(self, at_a_glance):
         for location in self.locations:
             frame = self.notebook.addTab(location.name)
-            forecastviews = Forecast_Notebook(frame, f"sub{location.alias}", location)
+            forecastviews = Forecast_Notebook(frame, f"sub{location.alias}", location, at_a_glance)
             self.location_tabs[location.name] = forecastviews
 
+    def trigger_refresh(self):
+        self.location_tabs[self.active_location.value.name].active_tab_changed()
         
     def on_tab_change(self, event):
         print(event.widget.name, self.notebook.name)

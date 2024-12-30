@@ -1,5 +1,6 @@
 import tkinter as tk
 
+from gui.frames.at_a_glance_frame import At_A_Glance_Frame
 from gui.frames.forecast.forecast_display import Forecast_DisplayFrame
 from utils.structures.datetime import TODAY
 from utils.structures.forecast.forecast_type import ForecastType
@@ -7,6 +8,11 @@ from utils.text_wrapper import *
 
 
 class Hourly_DisplayFrame(Forecast_DisplayFrame):
+
+    def __init__(self, master, name, location, at_a_glance: At_A_Glance_Frame):
+        super().__init__(master, name, location)
+        self.at_a_glance = at_a_glance
+
 
     def _setup_tree_display(self) -> None:
         tree_dict = self.hourly_forecast.to_hourly_tree_dict()
@@ -123,6 +129,7 @@ class Hourly_DisplayFrame(Forecast_DisplayFrame):
     def has_focus(self) -> None:
         if self.hourly_forecast.value is None:
             self.hourly_forecast.value = self.try_get_data(ForecastType.HOURLY)
+            self.at_a_glance.hourly_forecast.value = self.hourly_forecast.value
         if self.extended_forecast.value is None:
             self.extended_forecast.value = self.try_get_data(ForecastType.EXTENDED)
 

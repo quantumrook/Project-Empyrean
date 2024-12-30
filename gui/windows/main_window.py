@@ -6,6 +6,7 @@ import TKinterModernThemes as TKMT
 
 from PIL import Image, ImageTk
 
+from gui.frames.at_a_glance_frame import At_A_Glance_Frame
 from gui.icons.icons import clock_icons, colored_clock_icons
 
 from gui.frames.control_button_frame import ControlButtons_Frame
@@ -63,8 +64,9 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         self.request_window = None
 
-        self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1,pady=2)
-        self.is_playing = False
+        self.at_a_glance_frame = At_A_Glance_Frame(self.root, "AtAGlanceFrame")
+        # self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1,pady=2)
+        # self.is_playing = False
 
 
     def load_private_data(self) -> None:
@@ -95,7 +97,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
             frame = self.forecast_notebook.addTab(location.name)
             frame.name = location.name
-            self.forecast_notebooks[f'{location.alias}'] = frame.Notebook(
+            self.forecast_notebooks[location.alias] = frame.Notebook(
                 name = f"sub{location.alias}",
                 row=0,
                 col=0,
@@ -104,19 +106,19 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                 pady=0
             )
 
-            self.display_frames[f'{location.alias}'] = { }
+            self.display_frames[location.alias] = { }
 
             hourly = None
             extended = None
             for forecast_type in ForecastType.list():
-                subframe: TKMT.WidgetFrame = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
+                subframe: TKMT.WidgetFrame = self.forecast_notebooks[location.alias].addTab(forecast_type.name.title())
                 subframe.name = f"sub{location.alias}"
                 match forecast_type:
                     case ForecastType.HOURLY:
-                        self.display_frames[f'{location.alias}'][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
+                        self.display_frames[location.alias][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
                     case ForecastType.EXTENDED:
-                        self.display_frames[f'{location.alias}'][forecast_type] =  Extended_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
-                self.forecast_notebooks[f'{location.alias}'].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
+                        self.display_frames[location.alias][forecast_type] =  Extended_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
+                self.forecast_notebooks[location.alias].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
     def try_get_data(self, location_name: str, forecast_type: str, date:str) -> None:
         file_path = f'{directory_paths["forecasts"]}\\{location_name}\\{forecast_type.title()}\\{date}.json'
@@ -136,8 +138,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                     self.previous_location = self.active_location
                     self.active_location = location
                     self.trigger_forecast_load()
-                    self.build_at_a_glance()
-                    self.add_temp_labels()
+                    # self.build_at_a_glance()
+                    # self.add_temp_labels()
                     #self.build_animation()
 
     def on_tab_change(self, event):
@@ -149,9 +151,10 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
     def trigger_forecast_load(self):
         new_download_button_state = 'normal'
-        for forecast, display_frame in self.display_frames[f'{self.active_location.alias}'].items():
+        for forecast, display_frame in self.display_frames[self.active_location.alias].items():
             if display_frame.hourly_forecast is None and display_frame.extended_forecast is None:
                 hourly = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
+                self.at_a_glance_frame.hourly_forecast.value = hourly
                 extended = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
                 display_frame.update_data(hourly, extended)
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:

@@ -6,23 +6,9 @@ from gui.icons.icons import clock_icons
 from utils.structures.datetime import TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
+from utils.structures.watched_variable import WatchedVariable
 
-class WatchedVariable:
-    def __init__(self):
-        self._value = None
-        self.observers = [ ]
 
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value):
-        self._value = new_value
-        self.on_change()
-
-    def on_change(self):
-        pass
 
 class At_A_Glance_Frame(TKMT.WidgetFrame):   
 

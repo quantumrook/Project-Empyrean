@@ -105,17 +105,14 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             )
 
             self.display_frames[location.alias] = { }
-
-            hourly = None
-            extended = None
             for forecast_type in ForecastType.list():
                 subframe: TKMT.WidgetFrame = self.forecast_notebooks[location.alias].addTab(forecast_type.name.title())
                 subframe.name = f"sub{location.alias}"
                 match forecast_type:
                     case ForecastType.HOURLY:
-                        self.display_frames[location.alias][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
+                        self.display_frames[location.alias][forecast_type] = Hourly_DisplayFrame(subframe.master, 'ForecastDisplayClass', location)
                     case ForecastType.EXTENDED:
-                        self.display_frames[location.alias][forecast_type] =  Extended_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
+                        self.display_frames[location.alias][forecast_type] = Extended_DisplayFrame(subframe.master, 'ForecastDisplayClass', location)
                 self.forecast_notebooks[location.alias].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
     def try_get_data(self, location_name: str, forecast_type: str, date:str) -> None:
@@ -143,12 +140,13 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     def trigger_forecast_load(self):
         new_download_button_state = 'normal'
         for forecast, display_frame in self.display_frames[self.active_location.alias].items():
-            if display_frame.hourly_forecast is None and display_frame.extended_forecast is None:
+            if display_frame.hourly_forecast.value is None and display_frame.extended_forecast.value is None:
                 hourly = self.try_get_data(self.active_location.name, ForecastType.HOURLY.value, TODAY.date)
                 self.at_a_glance_frame.hourly_forecast.value = hourly
+                display_frame.hourly_forecast.value = hourly
                 extended = self.try_get_data(self.active_location.name, ForecastType.EXTENDED.value, TODAY.date)
-                display_frame.update_data(hourly, extended)
-            if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
+                display_frame.extended_forecast.value = extended
+            if display_frame.hourly_forecast.value is not None and display_frame.extended_forecast.value is not None:
                 new_download_button_state = 'disabled'
         self.controlbuttons_frame.toggle_download_button_state(new_download_button_state)
         
@@ -169,7 +167,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         for request_type in [RequestType.HOURLY, RequestType.EXTENDED]:
             forecast_type = ForecastType.from_string(request_type)
-            if self.display_frames[self.active_location.alias][forecast_type].hourly_forecast is not None and self.display_frames[self.active_location.alias][forecast_type].extended_forecast is not None:
+            if self.display_frames[self.active_location.alias][forecast_type].hourly_forecast.value is not None and self.display_frames[self.active_location.alias][forecast_type].extended_forecast.value is not None:
                 #TODO :: Display a message?
                 messagebox.showinfo("Forecast Information", "You already have today's forecast.")
                 continue

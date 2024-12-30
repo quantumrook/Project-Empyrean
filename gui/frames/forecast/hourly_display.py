@@ -1,94 +1,12 @@
 import tkinter as tk
 
-import TKinterModernThemes as TKMT
-from utils.download.request_type import RequestType
+from gui.frames.forecast.forecast_display import Forecast_DisplayFrame
 from utils.structures.datetime import TODAY
-from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
-from utils.structures.location.location import Location
 from utils.text_wrapper import *
 
 
-class Hourly_DisplayFrame(TKMT.WidgetFrame):
-    def __init__(self, master: TKMT.WidgetFrame, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location):
-        super().__init__(master, name)
-
-        self.is_stale = {
-            "hourly" : False,
-            "extended" : False
-        }
-
-        self.hourly_forecast = None
-        self.extended_forecast = None
-        
-        self.location: Location = location
-        
-        self.master.info_frame = self.master.addFrame("",row=0,col=0, colspan=2)
-        self.master.info_frame.makeResizable()
-
-        self.treeview = None
-
-        #self.update(hourly, extended)
-        
-
-    def _setup_info_display(self) -> None:
-
-        summary = ""
-        for entry in self.extended_forecast.forecasts[0:1]:
-            summary += f" {entry.content.description.long.get_value()}"
-
-        wrapping_str = format_text_as_wrapped(
-            string_to_wrap= summary,
-            add_tab= True,
-            number_of_characters_per_line= 160
-        )
-
-        self.master.info_frame.Label(
-            text=format_list_as_line_with_breaks(
-                list_to_compress= [
-                        "Generated At:", 
-                        "Last Updated:", 
-                        "Valid Till:"
-                    ],
-                add_tab_spacing= False
-            ),
-            weight= "normal",
-            size= 10,
-            row= 2,
-            col= 0,
-            colspan = 1,
-            rowspan = 1,
-            sticky = tk.E
-        )
-        
-        self.master.info_frame.Label(
-            text=format_list_as_line_with_breaks(
-                list_to_compress= [
-                        f'{self.hourly_forecast.frontmatter.generated.as_string()}',
-                        f'{self.hourly_forecast.frontmatter.updated.as_string()}',
-                        f'{self.hourly_forecast.frontmatter.expiration.as_string()}'
-                    ],
-                add_tab_spacing= False
-            ),
-            weight="normal",
-            size= 10,
-            row= 2,
-            col= 1,
-            colspan = 1,
-            rowspan = 1,
-            sticky = tk.W
-        )
-
-        self.master.info_frame.Label(
-            text=wrapping_str,
-            weight="normal",
-            size= 10,
-            row= 0,
-            col= 0,
-            colspan = 2,
-            rowspan = 1,
-            sticky = tk.E
-        )
+class Hourly_DisplayFrame(Forecast_DisplayFrame):
 
     def _setup_tree_display(self) -> None:
         tree_dict = self.hourly_forecast.to_hourly_tree_dict()
@@ -109,6 +27,51 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 sticky = tk.EW
             )
     
+    def __add_content_to_info_display(self) -> None:
+        self.info_frame.Label(
+            text=format_list_as_line_with_breaks(
+                list_to_compress= [
+                        self.extended_forecast.value.frontmatter.generated.as_string(),
+                        self.extended_forecast.value.frontmatter.updated.as_string(),
+                        self.extended_forecast.value.frontmatter.expiration.as_string()
+                    ],
+                add_tab_spacing= False
+            ),
+            weight="normal",
+            size= 10,
+            row= 1,
+            col= 1,
+            colspan = 1,
+            rowspan = 1,
+            sticky = tk.W
+        )
+        summary = ""
+        for entry in self.extended_forecast.value.forecasts[0:1]:
+            summary += entry.content.description.long.get_value()
+
+        wrapping_str = format_text_as_wrapped(
+            string_to_wrap= summary,
+            add_tab= True,
+            number_of_characters_per_line= 160 #TODO :: calculate based of frame width
+        )
+        
+        self.info_frame.Label(
+            text=wrapping_str,
+            weight="normal",
+            size= 10,
+            row= 0,
+            col= 0,
+            colspan = 2,
+            rowspan = 1,
+            sticky = tk.E
+        )
+
+    def on_hourly_forecast_change(self) -> None:
+        self._setup_plots_frame()
+
+    def on_extended_forecast_change(self) -> None:
+        self.__add_content_to_info_display()
+
     @staticmethod
     def __calculate_windchill(temperature: int, wind_speed: int) -> int:
         if temperature >= 50 or wind_speed == 0:
@@ -125,7 +88,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         temps = [ ]
         windchills = [ ]
         rain = [ ]
-        for forecast in self.hourly_forecast.forecasts:
+        for forecast in self.hourly_forecast.value.forecasts:
             if forecast.start.date == TODAY.date:
                 hour = int(forecast.start.hour().split(":")[0])
                 if hour > 0 and is_first_hour:
@@ -141,50 +104,25 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 windchills.append(chill)
 
 
-        self.temperatureframe = self.master.addLabelFrame("Temperature vs Time", row=1, col=0)
+        self.temperatureframe = self.info_frame.addLabelFrame("Temperature vs Time", row=1, col=0)
         self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
-        #self.temperature_ax.scatter(hours, temps, c=self.accent)
+
         self.temperature_ax.plot(hours, windchills)
         self.temperature_ax.plot(hours, temps, c='white')
         self.temperature_ax.legend(['Windchill', 'Temperature'])
 
-        #self.temperature_ax.fill_between(hours, windchills, alpha=0.5)
         self.temperature_ax.set_xticks(every_four_hours)
         self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
         
-        self.rainframe = self.master.addLabelFrame("Rain Chance vs Time", row=1, col=1)
+        self.rainframe = self.info_frame.addLabelFrame("Rain Chance vs Time", row=1, col=1)
         self.rain_canvas, fig2, self.rain_ax, _, _ = self.rainframe.matplotlibFrame("Rain Chance vs Time")
         self.rain_ax.set_ylabel("Rain Chance %")
         self.rain_ax.set_xticks(every_four_hours)
         self.rain_ax.plot(hours, rain, c=self.accent)
 
-    def refresh(self) -> None:
-        if self.is_stale["hourly"]:
-            # if self.treeview is not None:
-            #     self.treeview.destroy()
-            #self._setup_tree_display()
-            self._setup_plots_frame()
-        
-        if self.is_stale["extended"]:
-            # widgets = self.master.info_frame.widgets
-            # for l in widgets:
-            #     l.destroy()
-            # widgets = None
-            self._setup_info_display()
-            
-    def update_hourly(self, hourly: EmpyreanForecast) -> None:
-        if hourly is None:
-            return
-        self.hourly_forecast = hourly
-        self.is_stale["hourly"] = True
+    def has_focus(self) -> None:
+        if self.hourly_forecast.value is None:
+            self.hourly_forecast.value = self.try_get_data(ForecastType.HOURLY)
+        if self.extended_forecast.value is None:
+            self.extended_forecast.value = self.try_get_data(ForecastType.EXTENDED)
 
-    def update_extended(self, extended: EmpyreanForecast) -> None:
-        if extended is None:
-            return
-        self.extended_forecast = extended
-        self.is_stale["extended"] = True
-
-    def update_data(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
-        self.update_hourly(hourly)
-        self.update_extended(extended)
-        self.refresh()

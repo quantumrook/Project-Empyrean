@@ -56,7 +56,7 @@ class EmpyreanDateTime():
 
         EmpyreanDateTime.__localize(datetime.strptime(generating_str, EmpyreanDateTime.datetime_format), new_instance)
         if is_expiration:
-            EmpyreanDateTime.add_days(new_instance, 7)
+            new_instance = EmpyreanDateTime.add_days(new_instance, 7)
         return new_instance
 
     @staticmethod

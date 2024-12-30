@@ -109,11 +109,21 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 sticky = tk.EW
             )
     
+    @staticmethod
+    def __calculate_windchill(temperature: int, wind_speed: int) -> int:
+        if temperature >= 50 or wind_speed == 0:
+            return temperature
+        windchill = round(35.74+(0.6215*temperature)-(35.75*pow(wind_speed, 0.16))+(0.4275*temperature*pow(wind_speed, 0.16)))
+        if windchill > temperature:
+            return temperature #TODO Check why this is necessary
+        return windchill
+
     def _setup_plots_frame(self) -> None:
         is_first_hour = True
         every_four_hours = [ ]
         hours = [ ]
         temps = [ ]
+        windchills = [ ]
         rain = [ ]
         for forecast in self.hourly_forecast.forecasts:
             if forecast.start.date == TODAY.date:
@@ -124,14 +134,21 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 if hour % 4 == 0:
                     every_four_hours.append(hour)
                 hours.append(hour)
-                temps.append(int(forecast.content.temperature.get_value()))
+                temp = int(forecast.content.temperature.get_value())
+                temps.append(temp)
                 rain.append(int(forecast.content.rainChance.get_value()))
+                chill = self.__calculate_windchill(temp, forecast.content.wind.speedHigh.get_value())
+                windchills.append(chill)
 
 
         self.temperatureframe = self.master.addLabelFrame("Temperature vs Time", row=1, col=0)
         self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
-        self.temperature_ax.scatter(hours, temps, c=self.accent)
-        self.temperature_ax.plot(hours, temps)
+        #self.temperature_ax.scatter(hours, temps, c=self.accent)
+        self.temperature_ax.plot(hours, windchills)
+        self.temperature_ax.plot(hours, temps, c='white')
+        self.temperature_ax.legend(['Windchill', 'Temperature'])
+
+        #self.temperature_ax.fill_between(hours, windchills, alpha=0.5)
         self.temperature_ax.set_xticks(every_four_hours)
         self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
         

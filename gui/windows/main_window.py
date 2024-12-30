@@ -58,13 +58,12 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.add_forecast_notebook()
 
         self.root.rowconfigure(0, weight=1)
-        self.root.rowconfigure(1, weight=2)
-        self.root.rowconfigure(2, weight=7)
+        self.root.rowconfigure(1, weight=3)
+        self.root.rowconfigure(2, weight=6)
 
         self.request_window = None
 
         self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1,pady=2)
-        self.build_at_a_glance()
         self.is_playing = False
 
 
@@ -137,8 +136,9 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                     self.previous_location = self.active_location
                     self.active_location = location
                     self.trigger_forecast_load()
+                    self.build_at_a_glance()
                     self.add_temp_labels()
-                    self.build_animation()
+                    #self.build_animation()
 
     def on_tab_change(self, event):
         self.trigger_forecast_load()
@@ -227,12 +227,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
         just_hour = tk.IntVar()
         hour = int(TODAY.hour())
-        if hour > 6:
-            just_hour.set(hour-6)
-        else:
-            just_hour.set(0)
-        
-        progbar = self.at_a_glance_frame.Progressbar(just_hour, mode='determinate', lower=0, upper=24, row=1, col=1, colspan=12, padx=10, pady=0)
+        just_hour.set(hour)
+        progbar = self.at_a_glance_frame.Progressbar(just_hour, mode='determinate', lower=5, upper=18, row=1, col=1, colspan=12, padx=10, pady=0)
 
         for col in range(6,18):
             hour_normalized = col

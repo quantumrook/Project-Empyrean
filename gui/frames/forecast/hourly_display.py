@@ -63,7 +63,7 @@ class Hourly_DisplayFrame(Forecast_DisplayFrame):
             col= 0,
             colspan = 2,
             rowspan = 1,
-            sticky = tk.E
+            sticky = tk.EW
         )
 
     def on_hourly_forecast_change(self) -> None:
@@ -104,7 +104,7 @@ class Hourly_DisplayFrame(Forecast_DisplayFrame):
                 windchills.append(chill)
 
 
-        self.temperatureframe = self.info_frame.addLabelFrame("Temperature vs Time", row=1, col=0)
+        self.temperatureframe = self.info_frame.addLabelFrame("Temperature vs Time", row=2, col=0)
         self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
 
         self.temperature_ax.plot(hours, windchills)
@@ -114,7 +114,7 @@ class Hourly_DisplayFrame(Forecast_DisplayFrame):
         self.temperature_ax.set_xticks(every_four_hours)
         self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
         
-        self.rainframe = self.info_frame.addLabelFrame("Rain Chance vs Time", row=1, col=1)
+        self.rainframe = self.info_frame.addLabelFrame("Rain Chance vs Time", row=2, col=1)
         self.rain_canvas, fig2, self.rain_ax, _, _ = self.rainframe.matplotlibFrame("Rain Chance vs Time")
         self.rain_ax.set_ylabel("Rain Chance %")
         self.rain_ax.set_xticks(every_four_hours)

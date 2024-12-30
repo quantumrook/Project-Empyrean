@@ -12,6 +12,8 @@ from gui.icons.icons import clock_icons, colored_clock_icons
 from gui.frames.control_button_frame import ControlButtons_Frame
 from gui.frames.forecast.extended_display import Extended_DisplayFrame
 from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
+from gui.notebooks.forecast_notebook import Forecast_Notebook
+from gui.notebooks.location_notebook import Location_Notebook
 from gui.windows.request_manager import RequestThreadManager_Window
 
 from utils.download.download_status import DownloadStatus
@@ -71,49 +73,14 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.locations = get_private_data(filename=f'{directory_paths["private"]}\\private.json')
 
     def add_forecast_notebook(self) -> None:
-        self.forecast_notebook = self.frame.Notebook(
-                name = f"forecastViewer",
-                row = 0,
-                col = 0,
-                sticky = "nsew",
-                padx=0,
-                pady=0
-            )
-        self.forecast_notebook.notebook.name ="tkForecastViewer"
-        self.forecast_notebooks = { }
-
-        self.display_frames = { }
-
-        self.add_new_location_tab()
-        self.forecast_notebook.notebook.bind('<<NotebookTabChanged>>', self.on_location_tab_change)
         self.active_location = self.locations[0]
+        self.forecast_notebook = Location_Notebook(self.frame, "locationViewer", self.locations)
 
+    
     def add_new_location_tab(self):
         for location in self.locations:
-            if location.alias in self.forecast_notebooks.keys():
-                continue
-
             frame = self.forecast_notebook.addTab(location.name)
-            frame.name = location.name
-            self.forecast_notebooks[location.alias] = frame.Notebook(
-                name = f"sub{location.alias}",
-                row=0,
-                col=0,
-                sticky = "nsew",
-                padx=0,
-                pady=0
-            )
-
-            self.display_frames[location.alias] = { }
-            for forecast_type in ForecastType.list():
-                subframe: TKMT.WidgetFrame = self.forecast_notebooks[location.alias].addTab(forecast_type.name.title())
-                subframe.name = f"sub{location.alias}"
-                match forecast_type:
-                    case ForecastType.HOURLY:
-                        self.display_frames[location.alias][forecast_type] = Hourly_DisplayFrame(subframe.master, 'ForecastDisplayClass', location)
-                    case ForecastType.EXTENDED:
-                        self.display_frames[location.alias][forecast_type] = Extended_DisplayFrame(subframe.master, 'ForecastDisplayClass', location)
-                self.forecast_notebooks[location.alias].notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
+            forecastviews = Forecast_Notebook(frame, f"sub{location.alias}", location)
 
     def try_get_data(self, location_name: str, forecast_type: str, date:str) -> None:
         file_path = f'{directory_paths["forecasts"]}\\{location_name}\\{forecast_type.title()}\\{date}.json'
@@ -123,19 +90,6 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             return EmpyreanForecast.from_Empyrean(forecast_data_json)
         else:
             return None
-
-    def on_location_tab_change(self, event):
-        for location in self.locations:
-            if event.widget.tab('current')['text'] == location.name:
-                if self.previous_location is None:
-                    self.previous_location = self.active_location
-                elif self.active_location != location:
-                    self.previous_location = self.active_location
-                    self.active_location = location
-                    self.trigger_forecast_load()
-
-    def on_tab_change(self, event):
-        self.trigger_forecast_load()
 
     def trigger_forecast_load(self):
         new_download_button_state = 'normal'

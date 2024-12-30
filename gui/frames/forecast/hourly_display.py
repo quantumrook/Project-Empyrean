@@ -2,6 +2,7 @@ import tkinter as tk
 
 import TKinterModernThemes as TKMT
 from utils.download.request_type import RequestType
+from utils.structures.datetime import TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.structures.location.location import Location
@@ -9,19 +10,25 @@ from utils.text_wrapper import *
 
 
 class Hourly_DisplayFrame(TKMT.WidgetFrame):
-    def __init__(self, master, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location, control_buttons: dict[str, tk.Button]):
+    def __init__(self, master: TKMT.WidgetFrame, name: str, hourly: EmpyreanForecast, extended: EmpyreanForecast, location: Location):
         super().__init__(master, name)
 
-        self.hourly_forecast: EmpyreanForecast = hourly
-        self.extended_forecast: EmpyreanForecast = extended
-        self.location: Location = location
-        self.control_buttons = control_buttons
-        
-        if hourly is not None and extended is not None:
-            self._setup_info_display()
-            self._setup_tree_display()
-            self.master.info_frame.makeResizable()
+        self.is_stale = {
+            "hourly" : False,
+            "extended" : False
+        }
 
+        self.hourly_forecast = None
+        self.extended_forecast = None
+        
+        self.location: Location = location
+        
+        self.master.info_frame = self.master.addFrame("",row=0,col=0, colspan=2)
+        self.master.info_frame.makeResizable()
+
+        self.treeview = None
+
+        #self.update(hourly, extended)
         
 
     def _setup_info_display(self) -> None:
@@ -36,7 +43,6 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
             number_of_characters_per_line= 160
         )
 
-        self.master.info_frame = self.master.addFrame("")
         self.master.info_frame.Label(
             text=format_list_as_line_with_breaks(
                 list_to_compress= [
@@ -48,7 +54,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
             ),
             weight= "normal",
             size= 10,
-            row= 0,
+            row= 2,
             col= 0,
             colspan = 1,
             rowspan = 1,
@@ -66,7 +72,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
             ),
             weight="normal",
             size= 10,
-            row= 0,
+            row= 2,
             col= 1,
             colspan = 1,
             rowspan = 1,
@@ -77,7 +83,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
             text=wrapping_str,
             weight="normal",
             size= 10,
-            row= 1,
+            row= 0,
             col= 0,
             colspan = 2,
             rowspan = 1,
@@ -88,7 +94,7 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
         tree_dict = self.hourly_forecast.to_hourly_tree_dict()
         one_fifth = round(768 / 5)
         four_fifths = 768-one_fifth
-        self.master.info_frame.Treeview(
+        self.treeview = self.master.info_frame.Treeview(
                 columnnames     = ['By Date and Time', 'Forecast'], 
                 columnwidths    = [one_fifth, four_fifths], 
                 height          = 18,
@@ -96,14 +102,89 @@ class Hourly_DisplayFrame(TKMT.WidgetFrame):
                 subentryname    = 'subdata',
                 datacolumnnames = ['name', 'value'],
                 openkey         = 'open',
-                row= 2,
+                row= 1,
                 col= 0,
                 colspan = 2,
                 rowspan = 1,
                 sticky = tk.EW
             )
     
+    @staticmethod
+    def __calculate_windchill(temperature: int, wind_speed: int) -> int:
+        if temperature >= 50 or wind_speed == 0:
+            return temperature
+        windchill = round(35.74+(0.6215*temperature)-(35.75*pow(wind_speed, 0.16))+(0.4275*temperature*pow(wind_speed, 0.16)))
+        if windchill > temperature:
+            return temperature #TODO Check why this is necessary
+        return windchill
+
+    def _setup_plots_frame(self) -> None:
+        is_first_hour = True
+        every_four_hours = [ ]
+        hours = [ ]
+        temps = [ ]
+        windchills = [ ]
+        rain = [ ]
+        for forecast in self.hourly_forecast.forecasts:
+            if forecast.start.date == TODAY.date:
+                hour = int(forecast.start.hour().split(":")[0])
+                if hour > 0 and is_first_hour:
+                        every_four_hours.append(hour)
+                        is_first_hour = False
+                if hour % 4 == 0:
+                    every_four_hours.append(hour)
+                hours.append(hour)
+                temp = int(forecast.content.temperature.get_value())
+                temps.append(temp)
+                rain.append(int(forecast.content.rainChance.get_value()))
+                chill = self.__calculate_windchill(temp, forecast.content.wind.speedHigh.get_value())
+                windchills.append(chill)
+
+
+        self.temperatureframe = self.master.addLabelFrame("Temperature vs Time", row=1, col=0)
+        self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
+        #self.temperature_ax.scatter(hours, temps, c=self.accent)
+        self.temperature_ax.plot(hours, windchills)
+        self.temperature_ax.plot(hours, temps, c='white')
+        self.temperature_ax.legend(['Windchill', 'Temperature'])
+
+        #self.temperature_ax.fill_between(hours, windchills, alpha=0.5)
+        self.temperature_ax.set_xticks(every_four_hours)
+        self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
+        
+        self.rainframe = self.master.addLabelFrame("Rain Chance vs Time", row=1, col=1)
+        self.rain_canvas, fig2, self.rain_ax, _, _ = self.rainframe.matplotlibFrame("Rain Chance vs Time")
+        self.rain_ax.set_ylabel("Rain Chance %")
+        self.rain_ax.set_xticks(every_four_hours)
+        self.rain_ax.plot(hours, rain, c=self.accent)
+
     def refresh(self) -> None:
-        self._setup_info_display()
-        self._setup_tree_display()
-        self.master.info_frame.makeResizable()
+        if self.is_stale["hourly"]:
+            # if self.treeview is not None:
+            #     self.treeview.destroy()
+            #self._setup_tree_display()
+            self._setup_plots_frame()
+        
+        if self.is_stale["extended"]:
+            # widgets = self.master.info_frame.widgets
+            # for l in widgets:
+            #     l.destroy()
+            # widgets = None
+            self._setup_info_display()
+            
+    def update_hourly(self, hourly: EmpyreanForecast) -> None:
+        if hourly is None:
+            return
+        self.hourly_forecast = hourly
+        self.is_stale["hourly"] = True
+
+    def update_extended(self, extended: EmpyreanForecast) -> None:
+        if extended is None:
+            return
+        self.extended_forecast = extended
+        self.is_stale["extended"] = True
+
+    def update_data(self, hourly: EmpyreanForecast, extended: EmpyreanForecast) -> None:
+        self.update_hourly(hourly)
+        self.update_extended(extended)
+        self.refresh()

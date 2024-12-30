@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Self
 
-import pytz as tz
 from pytz import timezone
 from utils.private.private import user_default_timezone
 
@@ -16,7 +15,7 @@ class EmpyreanDateTime():
     datetime_format:    str      = "%Y-%m-%d %H:%M"
     default_timezone:   timezone = timezone(user_default_timezone)
 
-    def __init__(self, location_timezone: str = '') -> None:
+    def __init__(self, location_timezone: str = '', today=False) -> None:
 
         self.date_time: datetime = None
         self.date: str           = ""
@@ -25,9 +24,10 @@ class EmpyreanDateTime():
         
         if location_timezone:
             self.time_zone: timezone = timezone(location_timezone)
-            
-        #default to now, for the case where nothing is given
-        EmpyreanDateTime.__localize(datetime.now(), self)
+
+        if today == True:
+            #default to now, for the case where nothing is given
+            EmpyreanDateTime.__localize(datetime.now(), self)
     
     @staticmethod
     def __localize(original_dt: datetime, instance: Self) -> None:
@@ -56,7 +56,7 @@ class EmpyreanDateTime():
 
         EmpyreanDateTime.__localize(datetime.strptime(generating_str, EmpyreanDateTime.datetime_format), new_instance)
         if is_expiration:
-            EmpyreanDateTime.add_days(new_instance, 7)
+            new_instance = EmpyreanDateTime.add_days(new_instance, 7)
         return new_instance
 
     @staticmethod
@@ -93,9 +93,7 @@ class EmpyreanDateTime():
     def add_days(empyrean_datetime: Self, days: int) -> Self:
         return EmpyreanDateTime.from_datetime(empyrean_datetime.date_time + timedelta(days=days))
     
-    @staticmethod
-    def now() -> Self:
-        return EmpyreanDateTime()
-    
-    def hour(self) -> int:
+    def hour(self) -> str:
         return self.time.split(":")[0]
+
+TODAY = EmpyreanDateTime(today=True)

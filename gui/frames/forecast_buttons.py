@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from gui.empyrean.labelframe import LabelFrame
-from gui.icons.icons import icons
+from gui.icons.icons import png_icons
 from gui.widget_enum import WidgetType
 from PIL import Image, ImageTk
 from utils.structures.grid_placement import GridPlacement
@@ -20,7 +20,7 @@ class ForecastButtons_LabelFrame(LabelFrame):
 
     def __add_content(self):
         images = { }
-        for icon_name, icon_path in icons.items():
+        for icon_name, icon_path in png_icons.items():
             img = Image.open(icon_path)
             img = img.resize((24, 24), Image.Resampling.LANCZOS)
             images[icon_name] = ImageTk.PhotoImage(img)

@@ -3,14 +3,13 @@ import gui.windows.main_window as mw
 import tkinter as tk
 
 from gui.windows.splash_window import SplashScreen
-from gui.windows.at_a_glance import AtAGlance
 
 if __name__ == "__main__":
 
-    app = AtAGlance("park", "dark")
-    app.run()
+    # app = AtAGlance("park", "dark")
+    # app.run()
 
-    # app = mw.MainWindow("park", "dark")
+    app = mw.MainWindow("park", "dark")
     # app.root.withdraw()
 
     # splashscreen = SplashScreen(master=app.root, background="white")
@@ -25,4 +24,4 @@ if __name__ == "__main__":
 
     # app.root.deiconify()
     # splashscreen.destroy()
-    # app.run()
+    app.run()

@@ -2,8 +2,8 @@ import tkinter as tk
 
 from PIL import Image, ImageTk
 import TKinterModernThemes as TKMT
-from gui.icons.icons import ClockKeys, png_icons, clock_icons
-from utils.structures.datetime import TODAY, EmpyreanDateTime
+from gui.icons.icons import clock_icons
+from utils.structures.datetime import TODAY
 
 class AtAGlance(TKMT.ThemedTKinterFrame):
 
@@ -41,7 +41,10 @@ class AtAGlance(TKMT.ThemedTKinterFrame):
         clocks = [ ]
         for i in range(1,13):
             img = Image.open(clock_icons[f'wi-time-{i}'])
-            img = img.resize((36,36), Image.Resampling.LANCZOS)
+            img = img.resize((48,48), Image.Resampling.LANCZOS)
             img = ImageTk.PhotoImage(img)
-            clocks.append(img)
+            if i < 12:
+                clocks.append(img)
+            else:
+                clocks.insert(0, img)
         return clocks

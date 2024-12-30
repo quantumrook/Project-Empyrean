@@ -4,6 +4,10 @@ from tkinter import messagebox
 from typing import Any
 import TKinterModernThemes as TKMT
 
+from PIL import Image, ImageTk
+
+from gui.icons.icons import clock_icons, colored_clock_icons
+
 from gui.frames.control_button_frame import ControlButtons_Frame
 from gui.frames.forecast.extended_display import Extended_DisplayFrame
 from gui.frames.forecast.hourly_display import Hourly_DisplayFrame
@@ -31,19 +35,18 @@ class MainWindow(TKMT.ThemedTKinterFrame):
     def __init__(self, theme, mode, usecommandlineargs=True, usethemeconfigfile=True):
         super().__init__("Project Empyrean", theme, mode, usecommandlineargs=usecommandlineargs, useconfigfile=usethemeconfigfile)
 
-        self.root.geometry("1024x768")
+        self.root.geometry("1024x1024")
 
         self.current_tab = None
         self.previous_tab = None
 
         self.locations: list[Location] = [ ]
-        self.forecasts: dict[str, dict[ForecastType, EmpyreanForecast]] = { }
         self.load_private_data()
 
         self.controlbuttons_container = self.addFrame(name='cb_frame', row=0, col=0)
         self.controlbuttons_frame = ControlButtons_Frame(
-            master= self.controlbuttons_container, 
-            frame= self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.EW), 
+            master= self.controlbuttons_container,
+            frame= self.addFrame('controlButtons', row=0, col=0, padx=0, pady=0, sticky=tk.EW),
             commands={
                     "popout" : lambda: self._on_click_get_markdown(),
                     "download" : lambda: self._on_click_get_forecast()
@@ -51,21 +54,22 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             root_window= self
             )
 
-        self.frame = self.addFrame('forecastStuff', row=1, col=0, padx=0, pady=10, sticky=tk.NSEW)
+        self.frame = self.addFrame('forecastStuff', row=2, col=0, padx=0, pady=10, sticky=tk.NSEW)
         self.add_forecast_notebook()
 
         self.root.rowconfigure(0, weight=1)
-        self.root.rowconfigure(1, weight=9)
+        self.root.rowconfigure(1, weight=2)
+        self.root.rowconfigure(2, weight=7)
 
         self.request_window = None
 
+        self.at_a_glance_frame = self.addLabelFrame("At A Glance:", sticky=tk.EW, row = 1)
+        self.build_at_a_glance()
+        self.is_playing = False
+
+
     def load_private_data(self) -> None:
         self.locations = get_private_data(filename=f'{directory_paths["private"]}\\private.json')
-        forecasts = None
-        for location in self.locations:
-            self.forecasts[location.alias] = { }
-            for forecast_type in ForecastType.list():
-                self.forecasts[location.alias][forecast_type] = None
 
     def add_forecast_notebook(self) -> None:
         self.forecast_notebook = self.frame.Notebook(
@@ -107,7 +111,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             extended = None
             for forecast_type in ForecastType.list():
                 subframe: TKMT.WidgetFrame = self.forecast_notebooks[f'{location.alias}'].addTab(f"{forecast_type.name.title()}")
-                subframe.name = f"sub{location.alias}"    
+                subframe.name = f"sub{location.alias}"
                 match forecast_type:
                     case ForecastType.HOURLY:
                         self.display_frames[f'{location.alias}'][forecast_type] = Hourly_DisplayFrame(subframe, 'ForecastDisplayClass', hourly, extended, location)
@@ -117,7 +121,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
 
     def try_get_data(self, location_name: str, forecast_type: str, date:str) -> None:
         file_path = f'{directory_paths["forecasts"]}\\{location_name}\\{forecast_type.title()}\\{date}.json'
-        
+
         forecast_data_json = get_forecast_data(file_path)
         if forecast_data_json:
             return EmpyreanForecast.from_Empyrean(forecast_data_json)
@@ -133,9 +137,15 @@ class MainWindow(TKMT.ThemedTKinterFrame):
                     self.previous_location = self.active_location
                     self.active_location = location
                     self.trigger_forecast_load()
+                    self.add_temp_labels()
+                    self.build_animation()
 
     def on_tab_change(self, event):
         self.trigger_forecast_load()
+        # if self.is_playing == False:
+        #     self.build_animation()
+        #     self.play_animation()
+
 
     def trigger_forecast_load(self):
         new_download_button_state = 'normal'
@@ -147,6 +157,7 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             if display_frame.hourly_forecast is not None and display_frame.extended_forecast is not None:
                 new_download_button_state = 'disabled'
         self.controlbuttons_frame.toggle_download_button_state(new_download_button_state)
+        
 
     def _on_click_get_markdown(self):
         print(f'Current view: {self.locations[self.current_location_index].alias}: {self.current_tab}')
@@ -191,14 +202,136 @@ class MainWindow(TKMT.ThemedTKinterFrame):
             self.root.after(1000, self._monitor_requests)
 
     def __points_is_valid(self) -> bool:
-        date, time = self.active_location.api_grid.lastverified.split(' ')
+        date = self.active_location.api_grid.lastverified
         last_verified = EmpyreanDateTime.from_Empyrean({
             EmpyreanDateTime.Keys.time_zone : self.active_location.timezone,
             EmpyreanDateTime.Keys.date : date,
-            EmpyreanDateTime.Keys.time : time
+            EmpyreanDateTime.Keys.time : "01:00"
             })
         return EmpyreanDateTime.is_in_range(
-                questionable_datetime=TODAY, 
-                starting_datetime=last_verified, 
+                questionable_datetime=TODAY,
+                starting_datetime=last_verified,
                 ending_datetime=EmpyreanDateTime.add_days(last_verified, 14)
             )
+
+    def build_at_a_glance(self):
+        clocks = [ ]
+        for i in range(1,13):
+            img = Image.open(clock_icons[f'wi-time-{i}'])
+            img = img.resize((48,48), Image.Resampling.LANCZOS)
+            img = ImageTk.PhotoImage(img)
+            if i < 12:
+                clocks.append(img)
+            else:
+                clocks.insert(0, img)
+
+        just_hour = tk.IntVar()
+        hour = int(TODAY.hour())
+        if hour > 6:
+            just_hour.set(hour-6)
+        else:
+            just_hour.set(0)
+        
+        progbar = self.at_a_glance_frame.Progressbar(just_hour, mode='determinate', lower=0, upper=24, row=1, col=1, colspan=12, padx=10, pady=0)
+
+        for col in range(6,18):
+            hour_normalized = col
+            if hour_normalized > 11:
+                hour_normalized -= 12
+            clock_lbl = self.at_a_glance_frame.Label(f"", widgetkwargs={"image" : clocks[hour_normalized]}, row=0, col=(col-5), padx=5, pady=5)
+
+
+
+    def add_temp_labels(self):
+        hourly: EmpyreanForecast = None
+        for location, forecast_type in self.display_frames.items():
+            if location == self.active_location.alias:
+                for forecast_type, frame in self.display_frames[location].items():
+                    if forecast_type == ForecastType.HOURLY:
+                        hourly = frame.hourly_forecast
+
+        if hourly is None:
+            return
+
+        temps = { }
+        short = { }
+        for forecast in hourly.forecasts:
+            if forecast.start.date == TODAY.date:
+                temps[forecast.start.time] = forecast.content.temperature.get_value()
+                short[forecast.start.time] = forecast.content.description.short.get_value()
+
+        for time, temp in temps.items():
+            hour = int(time.split(":")[0])
+            if hour >= 6 and hour <= 17:
+                temp_lbl = self.at_a_glance_frame.Label(text=str(temp), row=2, col=(hour-5))
+                # short_lbl = self.at_a_glance_frame.Label(text=short[time], row=3, col=(hour-5), size=10)
+
+    def build_animation(self):
+        self.animation_data = { }
+        hourly: EmpyreanForecast = None
+        for location, forecast_type in self.display_frames.items():
+            if location == self.active_location.alias:
+                for forecast_type, frame in self.display_frames[location].items():
+                    if forecast_type == ForecastType.HOURLY:
+                        hourly = frame.hourly_forecast
+        if hourly is None:
+            return
+
+        clocks = [ ]
+        for i in range(1,13):
+            img = Image.open(clock_icons[f'wi-time-{i}'])
+            img = img.resize((48,48), Image.Resampling.LANCZOS)
+            img = ImageTk.PhotoImage(img)
+            if i < 12:
+                clocks.append(img)
+            else:
+                clocks.insert(0, img)
+
+        low = 273
+        high = -273
+        earliest_hour = 23
+        for forecast in hourly.forecasts:
+            if forecast.start.date == TODAY.date:
+                temp = int(forecast.content.temperature.get_value())
+                if temp < low:
+                    low = temp
+                if temp > high:
+                    high = temp
+                hour = int(forecast.start.hour())
+                if hour < earliest_hour:
+                    earliest_hour = hour
+                if hour > 11:
+                    hour -= 12
+                self.animation_data[forecast.start.time] = {
+                    "img"  : clocks[hour],
+                    "temp" : forecast.content.temperature.get_value(),
+                    "rain" : forecast.content.rainChance.get_value()
+                }
+        self.animation_current_key = list(self.animation_data.keys())[0]
+        self.anim_clock_lbl = self.at_a_glance_frame.Label(text="", row=0, col=0, widgetkwargs={"image" : self.animation_data[self.animation_current_key]["img"]})
+
+        self.anim_prog_var = tk.IntVar()
+        self.anim_prog_var.set(earliest_hour)
+        self.anim_prog_bar = self.at_a_glance_frame.Progressbar(self.anim_prog_var, mode="determinate", lower=earliest_hour, upper=len(self.animation_data.keys()), row=1, col=0)
+
+        self.anim_temp_var = tk.StringVar()
+        self.anim_temp_var.set(self.animation_data[self.animation_current_key]["temp"])
+        self.anim_temp_lbl = self.at_a_glance_frame.Label(text="", row=2, col=0, widgetkwargs={"textvariable" : self.anim_temp_var})
+
+    def play_animation(self):
+
+        if (self.is_playing == False):
+            self.is_playing = True
+        keys = list(self.animation_data.keys())
+        index = keys.index(self.animation_current_key) + 1
+        if index == len(keys):
+            index = 0
+        self.animation_current_key = keys[index]
+
+        self.anim_prog_var.set(int(self.animation_current_key.split(":")[0]))
+        img = self.animation_data[self.animation_current_key]["img"]
+        self.anim_clock_lbl.configure(image=img)
+        self.anim_clock_lbl.image = img
+        self.anim_temp_var.set(self.animation_data[self.animation_current_key]["temp"])
+        self.root.update()
+        self.root.after(1000, self.play_animation)

@@ -28,8 +28,8 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.location_notebook = Location_Notebook(self.frame, "locationViewer", self.locations, self.at_a_glance_frame)
 
         self.root.rowconfigure(0, weight=1)
-        self.root.rowconfigure(1, weight=3)
-        self.root.rowconfigure(2, weight=6)
+        self.root.rowconfigure(1, weight=4)
+        self.root.rowconfigure(2, weight=5)
 
     def load_private_data(self) -> None:
         self.locations = get_private_data(filename=f'{directory_paths["private"]}\\private.json')

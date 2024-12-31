@@ -30,7 +30,7 @@ class ForecastDisplayFrame(TKMT.WidgetFrame):
 
         self.extended_forecast = WatchedVariable()
         self.extended_forecast.on_change = self.on_extended_forecast_change
-        
+
         self.frame = self.addFrame(name="Forecast_Display_Container")
         self.info_frame = self.frame.addFrame(name="InfoFrame")
         self.setup_info_display()
@@ -59,17 +59,14 @@ class ForecastDisplayFrame(TKMT.WidgetFrame):
     def on_hourly_forecast_change(self):
         """Callback contract that children should implement.
         """
-        pass
 
     def on_extended_forecast_change(self):
         """Callback contract that children should implement.
         """
-        pass
 
     def has_focus(self):
         """Callback contract that children should implement.
         """
-        pass
 
     def try_get_data(self, forecast_type: ForecastType) -> EmpyreanForecast | None:
         """Helper function to load already downloaded forecast data.

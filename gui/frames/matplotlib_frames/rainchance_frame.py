@@ -13,7 +13,7 @@ class RainChanceData(PlotData):
         self.rain = [ ]
 
 class RainChanceFrame(MatPlotLibFrame):
-    """An extension of the MatPlotLibFrame class that specifically generates a temperature
+    """An extension of the MatPlotLibFrame class that specifically generates a rain chance
     vs time plot.
     """
     def __init__(self, master, name, plotname, row, col):

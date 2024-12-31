@@ -59,7 +59,7 @@ class ControlButtons_Frame(TKMT.WidgetFrame):
         svg_image = tksvg.SvgImage(file= svg_icons["wi-cloud-down"], scaletoheight=36)
         return svg_image
 
-
+    #TODO :: Reimplement the disabling of the download button if we already have today's forecast
     def toggle_download_button_state(self, new_state):
         self.buttons["download"]['state'] = new_state
 

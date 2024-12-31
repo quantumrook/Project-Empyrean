@@ -4,7 +4,7 @@ from gui.frames.at_a_glance_frame import At_A_Glance_Frame
 from gui.frames.forecast.forecast_display import Forecast_DisplayFrame
 from utils.structures.datetime import TODAY
 from utils.structures.forecast.forecast_type import ForecastType
-from utils.text_wrapper import *
+from utils.text_wrapper import format_list_as_line_with_breaks, format_text_as_wrapped
 
 
 class Hourly_DisplayFrame(Forecast_DisplayFrame):

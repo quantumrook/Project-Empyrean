@@ -8,7 +8,7 @@ from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.structures.location.location import Location
 from utils.structures.watched_variable import WatchedVariable
-from utils.text_wrapper import *
+from utils.text_wrapper import format_list_as_line_with_breaks
 
 
 class Forecast_DisplayFrame(TKMT.WidgetFrame):

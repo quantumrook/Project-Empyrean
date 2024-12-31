@@ -40,13 +40,9 @@ class Location_Notebook(TKMT.WidgetFrame):
         self.location_tabs[self.active_location.value.name].active_tab_changed()
         
     def on_tab_change(self, event):
-        print(event.widget.name, self.notebook.name)
-
         for location in self.locations:
             if event.widget.tab('current')['text'] == location.name:
                 self.active_location.value = location
-        print(event.widget.tab('current')['text'])
 
     def on_location_change(self):
-        print("activating sub tab")
         self.location_tabs[self.active_location.value.name].active.value = True

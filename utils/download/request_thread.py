@@ -7,7 +7,11 @@ import requests
 from utils.download.download_status import DownloadStatus
 from utils.download.html_status import HTMLStatusCode
 from utils.download.request_type import RequestType
+from utils.structures.forecast.api.forecast import PropertiesData
+from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.location.location import Location
+from utils.structures.watched_variable import WatchedVariable
+from utils.writer import save_forecast_data, save_location_data
 
 
 class RequestThread(Thread):
@@ -15,16 +19,21 @@ class RequestThread(Thread):
     __time_delay_max = 3
     __api_address = 'https://api.weather.gov'
 
-    def __init__(self, location: Location, request_type: RequestType) -> None:
+    def __init__(self, location: Location, request_type: RequestType, enable_extra_timeout_protection: bool = True) -> None:
         super().__init__()
 
-        self.status                         = DownloadStatus.INSTANTIATING
+        self.status                         = WatchedVariable()
+        self.status.value                   = DownloadStatus.INSTANTIATING
+
+        self.new_location                   = WatchedVariable()
+        self.new_location.value             = None
 
         self.location       : Location      = location
         self.request_type   : RequestType   = request_type
 
         self.error_message  :  list[str]    = [ ]
         self.response_json                  = None
+        self.__extra_timeout_protection_enabled = enable_extra_timeout_protection
 
     def __build_url(self) -> str:
         url = f'{self.__api_address}/'
@@ -46,9 +55,10 @@ class RequestThread(Thread):
     def __check_response_code_and_return_json(self, url) -> bool:
         try:
             with requests.get(url=url) as request:
-                self.status = DownloadStatus.REQUEST_RECIEVED
-                time.sleep(1)
-                self.status = DownloadStatus.CONVERTING_SOURCE_DATA
+                self.status.value = DownloadStatus.REQUEST_RECIEVED
+                if self.__extra_timeout_protection_enabled:
+                    time.sleep(0.5)
+                self.status.value = DownloadStatus.CONVERTING_SOURCE_DATA
                 response = request.json()
         except HTTPError as http_err:
             match request.status_code:
@@ -56,28 +66,52 @@ class RequestThread(Thread):
                     self.error_message.append("HTTP Error 404: Most likely too many requests for data have been made in too short of a time, please wait 10 minutes before trying again.")
                 case HTMLStatusCode.SERVICE_UNAVAILABLE:
                     self.error_message.append("HTTP Error 503: Service is unavailable. Most likely, there is no new valid forecast to fetch at this time, please try again later.")
-            self.status = DownloadStatus.REQUEST_FAILED
+            self.status.value = DownloadStatus.REQUEST_FAILED
             self.error_message.append(f"Further details:\n\t{http_err}\n")
             print(self.error_message)
         finally:
-            time.sleep(1)
+            if self.__extra_timeout_protection_enabled:
+                    time.sleep(0.5)
             return response
 
     def run(self):
 
-        self.status = DownloadStatus.BUILDING_REQUEST
-        time.sleep(1)
+        self.status.value = DownloadStatus.BUILDING_REQUEST
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
         url = self.__build_url()
-        self.status = DownloadStatus.REQUEST_BUILT
-        time.sleep(0.5)
+        self.status.value = DownloadStatus.REQUEST_BUILT
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
 
-        self.status = DownloadStatus.API_TIMEOUT_PROTECTION_STARTED
+        self.status.value = DownloadStatus.API_TIMEOUT_PROTECTION_STARTED
         self.__exectute_timeout_safeguard()
-        self.status = DownloadStatus.API_TIMEOUT_PROTECTION_COMPLETE
-        time.sleep(1)
+        self.status.value = DownloadStatus.API_TIMEOUT_PROTECTION_COMPLETE
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
 
-        self.status = DownloadStatus.SENDING_REQUEST
-        time.sleep(0.5)
+        self.status.value = DownloadStatus.SENDING_REQUEST
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
         self.response_json = self.__check_response_code_and_return_json(url=url)
-        self.status = DownloadStatus.REQUEST_SUCCESS
-        time.sleep(1)
+        self.status.value = DownloadStatus.REQUEST_SUCCESS
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
+        self.status.value = DownloadStatus.SAVING_DATA
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
+        self.save()
+
+    def save(self):
+        if (self.request_type == RequestType.POINTS):
+            self.new_location.value = save_location_data(self.response_json, self.location)
+        else:
+            api_data = PropertiesData(self.response_json["properties"])
+            self.forecast_to_save = EmpyreanForecast.from_API(api_data)
+            save_forecast_data(self.location, self.forecast_to_save)
+        if self.__extra_timeout_protection_enabled:
+            time.sleep(0.5)
+        self.status.value = DownloadStatus.SAVE_COMPLETE
+
+    def update_location_with_new_POINTS_data(self, updated_location):
+        self.location = updated_location.value

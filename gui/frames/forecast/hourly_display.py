@@ -12,26 +12,6 @@ class Hourly_DisplayFrame(Forecast_DisplayFrame):
     def __init__(self, master, name, location, at_a_glance: At_A_Glance_Frame):
         super().__init__(master, name, location)
         self.at_a_glance = at_a_glance
-
-
-    def _setup_tree_display(self) -> None:
-        tree_dict = self.hourly_forecast.to_hourly_tree_dict()
-        one_fifth = round(768 / 5)
-        four_fifths = 768-one_fifth
-        self.treeview = self.master.info_frame.Treeview(
-                columnnames     = ['By Date and Time', 'Forecast'], 
-                columnwidths    = [one_fifth, four_fifths], 
-                height          = 18,
-                data            = tree_dict,
-                subentryname    = 'subdata',
-                datacolumnnames = ['name', 'value'],
-                openkey         = 'open',
-                row= 1,
-                col= 0,
-                colspan = 2,
-                rowspan = 1,
-                sticky = tk.EW
-            )
     
     def __add_content_to_info_display(self) -> None:
         self.info_frame.Label(

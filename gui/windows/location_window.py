@@ -102,7 +102,7 @@ class Themed_NewLocation_Window(TKMT.ThemedTKinterFrame):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
 
-            self.app_root_window.locations.append(self.request_window.new_location)
+            self.app_root_window.locations.append(self.request_window.updated_location)
             self.request_window.destroy()
             self.request_window = None
             self.app_root_window.add_new_location_tab()

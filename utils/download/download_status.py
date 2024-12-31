@@ -1,4 +1,3 @@
-from enum import Enum
 
 from utils.structures.empyrean_enum import EmpyreanEnum
 

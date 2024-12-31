@@ -27,21 +27,21 @@ def save_forecast_data(location: Location, forecast_data: EmpyreanForecast):
         # data_as_JSON_Object = json.dumps(forecast_data, indent=4, sort_keys=True)
         forecast_JSON_file.write(data_as_JSON_Object)
 
-def save_location_data(response_json, location_properties) -> Location:
+def save_location_data(response_json, location: Location) -> Location:
     properties = response_json["properties"]
     points = response_json["id"].split("/")
     lat, lon = points[-1].split(",")
 
     timezone = user_default_timezone
-    if location_properties[Location.Keys.timezone]:
-        timezone = location_properties[Location.Keys.timezone]
+    if location.timezone:
+        timezone = location.timezone
 
     location_to_add = Location(
         {
-            Location.Keys.alias : location_properties[Location.Keys.alias],
-            Location.Keys.name  : location_properties[Location.Keys.name],
+            Location.Keys.alias : location.alias,
+            Location.Keys.name  : location.name,
             Location.Keys.position : {
-                Position.Keys.lattitude : lat,
+                Position.Keys.latitude : lat,
                 Position.Keys.longitude : lon
             },
             Location.Keys.api_grid : {

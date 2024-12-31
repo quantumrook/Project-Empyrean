@@ -5,7 +5,7 @@ from typing import Any
 @dataclass
 class Position():
     class Keys():
-        lattitude = "lattitude"
+        latitude = "lattitude"
         longitude = "longitude"
     lattitude   : str
     longitude   : str

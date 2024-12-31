@@ -4,7 +4,8 @@ import tkinter as tk
 
 from gui.frames.at_a_glance_frame import AtAGlanceFrame
 from gui.frames.forecast.forecast_display import ForecastDisplayFrame
-from utils.structures.datetime import TODAY
+from gui.frames.matplotlib_frames.rainchance_frame import RainChanceFrame
+from gui.frames.matplotlib_frames.temperature_frame import TemperatureFrame
 from utils.structures.forecast.forecast_type import ForecastType
 from utils.text_wrapper import format_list_as_line_with_breaks, format_text_as_wrapped
 
@@ -20,7 +21,22 @@ class HourlyDisplayFrame(ForecastDisplayFrame):
     def __init__(self, master, name, location, at_a_glance: AtAGlanceFrame):
         super().__init__(master, name, location)
         self.at_a_glance = at_a_glance
-    
+        self.plots_frame = self.addFrame("plots", row=2, col=0)
+        self.temperature_frame = TemperatureFrame(
+            master=self.plots_frame,
+            name="TemperaturePlotContainer",
+            plotname="Temperature vs Time",
+            row=0,
+            col=0
+        )
+        self.rain_frame = RainChanceFrame(
+            master=self.plots_frame,
+            name="RainPlotContainer",
+            plotname="Rain Chance vs Time",
+            row=0,
+            col=1
+        )
+
     def __add_content_to_info_display(self) -> None:
         """Adds additional forecast information content to the info display label
         frame.
@@ -66,74 +82,15 @@ class HourlyDisplayFrame(ForecastDisplayFrame):
     def on_hourly_forecast_change(self) -> None:
         """Callback for triggering the creation of visual aides.
         """
-        self._setup_plots_frame()
+        # self._setup_plots_frame()
+        self.temperature_frame.prepare_data(self.hourly_forecast.value)
+        self.rain_frame.prepare_data(self.hourly_forecast.value)
 
     def on_extended_forecast_change(self) -> None:
         """Callback for triggering the addition of additional
         forecast information.
         """
         self.__add_content_to_info_display()
-
-    @staticmethod
-    def __calculate_windchill(temperature: int, wind_speed: int) -> int:
-        """Helper method for calculating the temperature when accounting for windchill
-
-        Args:
-            temperature (int): the surface temperature
-            wind_speed (int): the surface windspeed
-
-        Returns:
-            int: the temperature when accounting for the windchill
-        """
-        if temperature >= 50 or wind_speed == 0:
-            return temperature
-        windchill = 35.74+(0.6215*temperature)
-        windchill -= (35.75*pow(wind_speed, 0.16))
-        windchill += (0.4275*temperature*pow(wind_speed, 0.16))
-        windchill = round(windchill)
-        if windchill > temperature:
-            return temperature #TODO Check why this is necessary
-        return windchill
-
-    def _setup_plots_frame(self) -> None:
-        """Helper function for generating matplotlib plots of forecast data.
-        """
-        is_first_hour = True
-        every_four_hours = [ ]
-        hours = [ ]
-        temps = [ ]
-        windchills = [ ]
-        rain = [ ]
-        for forecast in self.hourly_forecast.value.forecasts:
-            if forecast.start.date == TODAY.date:
-                hour = int(forecast.start.hour().split(":")[0])
-                if hour > 0 and is_first_hour:
-                    every_four_hours.append(hour)
-                    is_first_hour = False
-                if hour % 4 == 0:
-                    every_four_hours.append(hour)
-                hours.append(hour)
-                temp = int(forecast.content.temperature.get_value())
-                temps.append(temp)
-                rain.append(int(forecast.content.rainChance.get_value()))
-                chill = self.__calculate_windchill(temp, forecast.content.wind.speedHigh.get_value())
-                windchills.append(chill)
-
-        self.temperatureframe = self.info_frame.addLabelFrame("Temperature vs Time", row=2, col=0)
-        self.temperature_canvas, fig1, self.temperature_ax, background, self.accent = self.temperatureframe.matplotlibFrame("Temperature vs Time")
-
-        self.temperature_ax.plot(hours, windchills)
-        self.temperature_ax.plot(hours, temps, c='white')
-        self.temperature_ax.legend(['Windchill', 'Temperature'])
-
-        self.temperature_ax.set_xticks(every_four_hours)
-        self.temperature_ax.set_ylabel(u'\N{DEGREE SIGN}'+'F')
-
-        self.rainframe = self.info_frame.addLabelFrame("Rain Chance vs Time", row=2, col=1)
-        self.rain_canvas, fig2, self.rain_ax, _, _ = self.rainframe.matplotlibFrame("Rain Chance vs Time")
-        self.rain_ax.set_ylabel("Rain Chance %")
-        self.rain_ax.set_xticks(every_four_hours)
-        self.rain_ax.plot(hours, rain, c=self.accent)
 
     def has_focus(self) -> None:
         """Callback used to trigger the loading of forecast data to enable display

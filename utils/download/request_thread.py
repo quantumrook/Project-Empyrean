@@ -1,3 +1,9 @@
+"""Module used to allow multithreading of the program while it
+fetches data from the NWS API.
+
+Raises:
+    ValueError: Throws an error if the RequestType is invalid.
+"""
 import random
 import time
 from threading import Thread
@@ -15,11 +21,26 @@ from utils.writer import save_forecast_data, save_location_data
 
 
 class RequestThread(Thread):
+    """An extension of the Thread class that handles requesting and processing
+    of information from the NWS API.
 
+    Raises:
+        ValueError: Throws an error if the RequestType is invalid. This means
+        a programming error has occured - not I/O.
+    """
     __time_delay_max = 3
     __api_address = 'https://api.weather.gov'
 
     def __init__(self, location: Location, request_type: RequestType, enable_extra_timeout_protection: bool = True) -> None:
+        """Spawns a new thread for requesting data from the NWS API.
+
+        Args:
+            location (Location): The location to get information about.
+            request_type (RequestType): The API request type to perform.
+            enable_extra_timeout_protection (bool, optional): Enables extra sleep calls
+            to ensure program doesn't send requests to quickly one after the other. 
+            Defaults to True.
+        """
         super().__init__()
 
         self.status                         = WatchedVariable()
@@ -53,8 +74,11 @@ class RequestThread(Thread):
         time.sleep(random.randint(1, self.__time_delay_max))
 
     def __check_response_code_and_return_json(self, url) -> bool:
+        response = None
         try:
             with requests.get(url=url) as request:
+                # TODO:: add timeout to request
+                # TODO:: format request header according to API specs
                 self.status.value = DownloadStatus.REQUEST_RECIEVED
                 if self.__extra_timeout_protection_enabled:
                     time.sleep(0.5)
@@ -71,8 +95,8 @@ class RequestThread(Thread):
             print(self.error_message)
         finally:
             if self.__extra_timeout_protection_enabled:
-                    time.sleep(0.5)
-            return response
+                time.sleep(0.5)
+        return response
 
     def run(self):
 
@@ -103,7 +127,10 @@ class RequestThread(Thread):
         self.save()
 
     def save(self):
-        if (self.request_type == RequestType.POINTS):
+        """Handles saving the corresponding requested information. And triggers callback
+        to manager with setting of status.
+        """
+        if self.request_type == RequestType.POINTS:
             self.new_location.value = save_location_data(self.response_json, self.location)
         else:
             api_data = PropertiesData(self.response_json["properties"])
@@ -114,4 +141,7 @@ class RequestThread(Thread):
         self.status.value = DownloadStatus.SAVE_COMPLETE
 
     def update_location_with_new_POINTS_data(self, updated_location):
+        """Callback used for updating the location data in place for subsequent requests,
+        if we're also performing a POINTS update.
+        """
         self.location = updated_location.value

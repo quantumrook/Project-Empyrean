@@ -1,3 +1,5 @@
+"""Helper module to standardize access to icon graphics.
+"""
 from utils.private.private import directory_paths
 
 png_icons = {
@@ -7,7 +9,6 @@ png_icons = {
     #https://www.flaticon.com/free-icons/obtain  created by meaicon - Flaticon
     "download"  : f'{directory_paths["icons"]}\\cloud-download.png',
     "splash"    : f'{directory_paths["icons"]}\\quantumrook_2.png'
-    
 }
 
 svg_icons = {
@@ -15,6 +16,8 @@ svg_icons = {
 }
 
 class ClockKeys():
+    """Helper class for mapping dictionary key names to file names
+    """
     wi_time_1 = "wi-time-1"
     wi_time_2 = "wi-time-2"
     wi_time_3 = "wi-time-3"

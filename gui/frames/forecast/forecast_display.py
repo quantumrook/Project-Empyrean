@@ -1,3 +1,5 @@
+"""Creates an extendable class for displaying forecast information.
+"""
 import tkinter as tk
 
 import TKinterModernThemes as TKMT
@@ -11,7 +13,13 @@ from utils.structures.watched_variable import WatchedVariable
 from utils.text_wrapper import format_list_as_line_with_breaks
 
 
-class Forecast_DisplayFrame(TKMT.WidgetFrame):
+class ForecastDisplayFrame(TKMT.WidgetFrame):
+    """Extends the TKMT WidgetFrame class to provide a base for the 
+    hourly and extended forecast views.
+
+    Args:
+        TKMT (WidgetFrame): The TKMT class extended.
+    """
     def __init__(self, master, name: str, location: Location):
         super().__init__(master, name)
 
@@ -28,7 +36,8 @@ class Forecast_DisplayFrame(TKMT.WidgetFrame):
         self.setup_info_display()
 
     def setup_info_display(self) -> None:
-
+        """Helper that adds widgets used by both subclasses.
+        """
         self.info_frame.Label(
             text=format_list_as_line_with_breaks(
                 list_to_compress= [
@@ -48,15 +57,29 @@ class Forecast_DisplayFrame(TKMT.WidgetFrame):
         )
 
     def on_hourly_forecast_change(self):
+        """Callback contract that children should implement.
+        """
         pass
 
     def on_extended_forecast_change(self):
+        """Callback contract that children should implement.
+        """
         pass
 
     def has_focus(self):
+        """Callback contract that children should implement.
+        """
         pass
 
     def try_get_data(self, forecast_type: ForecastType) -> EmpyreanForecast | None:
+        """Helper function to load already downloaded forecast data.
+
+        Args:
+            forecast_type (ForecastType): The type of forecast to fetch
+
+        Returns:
+            EmpyreanForecast | None: The forecast for today's date of the specified type.
+        """
         file_path = f'{directory_paths["forecasts"]}\\{self.location.name}\\{forecast_type.value.title()}\\{TODAY.date}.json'
 
         forecast_data_json = get_forecast_data(file_path)

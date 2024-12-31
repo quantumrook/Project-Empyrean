@@ -1,3 +1,4 @@
+"""Module for wrapping a(n) hourly/extended forecast."""
 from typing import Any, Self
 
 from utils.structures.datetime import EmpyreanDateTime, TODAY
@@ -9,8 +10,9 @@ from utils.text_wrapper import format_text_as_wrapped
 
 
 class EmpyreanForecast():
-
+    """The wrapper for all times and information about a forecast."""
     class Keys():
+        """Helper class for mapping keys to variables."""
         frontmatter: str = "frontmatter"
         forecasts: str = "forecasts"
 
@@ -20,21 +22,24 @@ class EmpyreanForecast():
 
     @staticmethod
     def from_API(properties_data: PropertiesData) -> Self:
+        """Helper function for creation from API data."""
         new_instance = EmpyreanForecast()
         new_instance.frontmatter = EmpyreanFrontmatter.from_API(properties_data)
         for entry in properties_data.periods:
             new_instance.forecasts.append(EmpyreanForecastEntry.from_API(entry))
         return new_instance
-    
+
     @staticmethod
     def from_Empyrean(json_data: dict[str, Any]) -> Self:
+        """Helper function for creation from saved JSON data."""
         new_instance = EmpyreanForecast()
         new_instance.frontmatter = EmpyreanFrontmatter.from_Empyrean(json_data[EmpyreanForecast.Keys.frontmatter])
         for entry in json_data[EmpyreanForecast.Keys.forecasts]:
             new_instance.forecasts.append(EmpyreanForecastEntry.from_Empyrean(entry))
         return new_instance
-    
+
     def to_dict(self) -> dict[str, Any]:
+        """Helper function for preparing to save JSON data."""
         forecast_list = [ ]
         for forecast_entry in self.forecasts:
             forecast_list.append(forecast_entry.to_dict())
@@ -42,8 +47,9 @@ class EmpyreanForecast():
             EmpyreanForecast.Keys.frontmatter : self.frontmatter.to_dict(),
             EmpyreanForecast.Keys.forecasts : forecast_list
         }
-    
+
     def get_forecast_for_range(self, starting_datetime: EmpyreanDateTime, ending_datetime: EmpyreanDateTime) -> list[dict[EmpyreanDateTime, EmpyreanForecastContent]]:
+        """Helper function to return just the ForecastEntries within the specified range."""
         forecast_for_range = [ ]
         for entry in self.forecasts:
             if EmpyreanDateTime.is_in_range(entry.start, starting_datetime, ending_datetime):
@@ -51,6 +57,7 @@ class EmpyreanForecast():
         return forecast_for_range
 
     def to_hourly_tree_dict(self) -> list[dict[str, Any]]:
+        """Helper function for collating information to be displayed in a TKMT Treeview Widget."""
         date_entry = None
         for entry in self.forecasts:
             if entry.start.date == TODAY.date and entry.start.hour() >= TODAY.hour():
@@ -67,7 +74,8 @@ class EmpyreanForecast():
                 date_entry.subdata.append(tree_entry)
         return [ date_entry.to_dict() ]
     
-    def to_extended_tree_dict(self) -> list[dict[str, Any]]: 
+    def to_extended_tree_dict(self) -> list[dict[str, Any]]:
+        """Helper function for collating information to be displayed in a TKMT Treeview Widget."""
         entries = [ ]
         new_date = True
         date_entry = None
@@ -102,22 +110,24 @@ class EmpyreanForecast():
             tree_entry = TreeEntry(name=entry.properties.name, is_open=open_flag, subdata=entry_subdata)
             date_entry.subdata.append(tree_entry)
         return entries
-    
 
 class TreeEntry():
+    """Helper class for organizing forecast information for a Treeview."""
     class Keys():
+        """Helper class for mapping keys to variables."""
         name: str = "name"
         open: str = "open"
         subdata: str = "subdata"
         value: str = "value"
 
-    def __init__(self, name: str, is_open: bool = False, subdata: list[Self] = [ ], value:str = ""):
+    def __init__(self, name: str, is_open: bool = False, subdata: list[Self] = [], value:str = ""):
         self.name = name
         self.open = is_open
         self.subdata: list[TreeEntry] = subdata
         self.value = value
 
     def to_dict(self) -> dict[str, Any]:
+        """Helper function for converting objects into a dictionary for use with a Treeview Widget"""
         subdata_list = [ ]
         for sub_entry in self.subdata:
             subdata_list.append(sub_entry.to_dict())

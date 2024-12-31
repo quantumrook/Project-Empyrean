@@ -1,28 +1,34 @@
+"""Module for interfacing between Empyrean and the NWS API"""
 from dataclasses import dataclass
 from typing import Any
 
 
 @dataclass
 class Position():
+    """Helper class for holding latitude and longitude information."""
     class Keys():
-        latitude = "lattitude"
+        """Helper class for maping dictionary keys to variables."""
+        latitude = "latitude"
         longitude = "longitude"
-    lattitude   : str
+    latitude   : str
     longitude   : str
 
     def __init__(self, data: dict[str, str]) -> None:
-        self.lattitude = data["lattitude"]
+        self.latitude = data["latitude"]
         self.longitude = data["longitude"]
 
     def to_json(self) -> dict[str, str]:
+        """Helper funciton for preparing to convert to JSON"""
         return {
-            "lattitude" : self.lattitude,
+            "latitude" : self.latitude,
             "longitude" : self.longitude
         }
 
 @dataclass
 class API_Grid():
+    """Helper class for holding API information."""
     class Keys():
+        """Helper class for maping dictionary keys to variables."""
         lastverified = "lastverified"
         x = "x"
         y = "y"
@@ -39,6 +45,7 @@ class API_Grid():
         self.station = data[API_Grid.Keys.station]
 
     def to_json(self) -> dict[str, str]:
+        """Helper funciton for preparing to convert to JSON"""
         return {
             API_Grid.Keys.lastverified  : self.lastverified,
             API_Grid.Keys.x             : self.x,
@@ -48,7 +55,9 @@ class API_Grid():
 
 @dataclass
 class Location():
+    """Helper class for maping API data to Empyrean friendly usage."""
     class Keys():
+        """Helper class for maping dictionary keys to variables."""
         alias = "alias"
         name = "name"
         position = "position"
@@ -68,6 +77,7 @@ class Location():
         self.timezone = location_data["timezone"]
 
     def to_json(self):
+        """Helper funciton for preparing to convert to JSON"""
         return {
             "alias"     : self.alias,
             "name"      : self.name,

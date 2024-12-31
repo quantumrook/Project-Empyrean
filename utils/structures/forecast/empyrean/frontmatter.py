@@ -1,14 +1,16 @@
+"""Module for wrapping the forecast frontmatter."""
 from typing import Any, Self
 
 from utils.structures.datetime import EmpyreanDateTime
 from utils.structures.forecast.api.forecast import PropertiesData
 from utils.structures.forecast.forecast_type import ForecastType
-from utils.structures.json.unit_value import UnitValue, Value_Type
+from utils.structures.json.unit_value import UnitValue, ValueType
 
 
 class EmpyreanFrontmatter():
-
+    """Contains all the base date information regarding a forecast"""
     class Keys():
+        """Helper class for mapping keys to variables."""
         type: str = "type"
         generated: str = "generated"
         updated: str = "updated"
@@ -24,6 +26,7 @@ class EmpyreanFrontmatter():
 
     @staticmethod
     def from_API(properties_data: PropertiesData) -> Self:
+        """Helper function for creation from API data."""
         new_instance = EmpyreanFrontmatter()
         typename, _unused  = properties_data.forecastGenerator.split('Forecast')
         match typename.lower():
@@ -36,16 +39,17 @@ class EmpyreanFrontmatter():
         new_instance.generated  = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.generatedAt)
         new_instance.updated    = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.updateTime)
         new_instance.expiration = EmpyreanDateTime.from_API(location_timezone="UTC", generating_str=properties_data.validTimes, is_expiration=True)
-        
+
         new_instance.elevation = UnitValue({
             UnitValue.Keys.unitCode     : properties_data.elevation[UnitValue.Keys.unitCode],
             UnitValue.Keys.value        : properties_data.elevation[UnitValue.Keys.value],
-            UnitValue.Keys.valueType    : Value_Type.FLOAT
+            UnitValue.Keys.valueType    : ValueType.FLOAT
         })
         return new_instance
 
     @staticmethod
     def from_Empyrean(frontmatter_data: dict[str, Any]) -> Self:
+        """Helper function for creation from saved JSON data."""
         new_instance = EmpyreanFrontmatter()
         new_instance.forecast_type  = ForecastType.from_string(frontmatter_data[EmpyreanFrontmatter.Keys.type])
         new_instance.generated      = EmpyreanDateTime.from_Empyrean(frontmatter_data[EmpyreanFrontmatter.Keys.generated])
@@ -55,6 +59,7 @@ class EmpyreanFrontmatter():
         return new_instance
 
     def to_dict(self) -> dict[str, Any]:
+        """Helper function for preparing to save JSON data."""
         return {
             EmpyreanFrontmatter.Keys.type : self.forecast_type.name,
             EmpyreanFrontmatter.Keys.generated : self.generated.to_dict(),

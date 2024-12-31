@@ -1,15 +1,26 @@
+"""Creates a Splash Screen to display while program launches.
+"""
 import tkinter as tk
 from gui.icons.icons import png_icons
 
 class SplashScreen(tk.Toplevel):
+    """A tkinter window that displays a graphic while the program launches.
 
-    def __init__(self, master, background):
-        super().__init__(master, background=background)
+    Args:
+        tk (Toplevel): The tkinter window class that's extended.
+    """
+    def __init__(self, master):
+        """Creates a window and hides the OS window frame. Loads and displays an image, centered on the user's screen.
+
+        Args:
+            master (tk.Toplevel): The program root window.
+        """
+        super().__init__(master)
 
         self.overrideredirect(True)
         self.title("Splash Screen")
 
-        x, y = self.centerWindow(1263, 995, master)
+        x, y = self.__center_window()
         self.geometry(f"1263x995+{x}+{y}")
 
         self.image = tk.PhotoImage(file=png_icons["splash"]) 
@@ -18,9 +29,15 @@ class SplashScreen(tk.Toplevel):
 
         self.update()
 
-    def centerWindow(self, width, height, root):  # Return 4 values needed to center Window
-        screen_width = root.winfo_screenwidth()  # Width of the screen
-        screen_height = root.winfo_screenheight() # Height of the screen     
-        x = (screen_width/2) - (width/2)
-        y = (screen_height/2) - (height/2)
-        return int(x), int(y)
+    def __center_window(self):
+        """Helper function to center this new window in the center of the user's screen.
+        """
+        self.width = 1263
+        self.height = 995
+
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = int((screen_width/2) - (self.width/2))
+        y = int((screen_height/2) - (self.height/2))
+
+        self.root.geometry(f"{self.width}x{self.height}+{x}+{y}")

@@ -1,11 +1,16 @@
+"""Helper module for creating a base extension of the Enum class
+that all Empyrean Enum objects extend.
+"""
 from enum import Enum
 from functools import cache
 from typing import Any, Self
 
 
 class EmpyreanEnum(Enum):
-
-    @classmethod 
+    """Base Enum class for all Empyrean Enums.
+    Contains helper functions and generators that are typically used.
+    """
+    @classmethod
     @cache
     def list(cls) -> list[Self]:
         """
@@ -15,6 +20,7 @@ class EmpyreanEnum(Enum):
 
     @classmethod
     def from_string(cls, str_to_convert: str) -> Self:
+        """Parses a string and returns the corresponding enum."""
         if isinstance(str_to_convert, EmpyreanEnum):
             str_to_convert = str(str_to_convert.value)
         for enum in cls.list():
@@ -24,6 +30,8 @@ class EmpyreanEnum(Enum):
 
     @classmethod
     def is_numeric(cls, enum) -> bool:
+        """Returns a bool stating whether or not the enum corresponds
+        to a numeric variable."""
         if isinstance(enum, int):
             return True
         elif isinstance(enum, float):
@@ -34,6 +42,7 @@ class EmpyreanEnum(Enum):
     @classmethod
     @cache
     def max_value(cls) -> Any:
+        """Returns the enum associated with the maximum value, if applicable."""
         current_max = None
         for enum in cls.list():
             if EmpyreanEnum.is_numeric(enum):
@@ -49,6 +58,7 @@ class EmpyreanEnum(Enum):
     @classmethod
     @cache
     def min_value(cls) -> Any:
+        """Returns the enum associated with the minimum value, if applicable."""
         current_min = None
         for enum in cls.list():
             if EmpyreanEnum.is_numeric(enum):
@@ -60,4 +70,3 @@ class EmpyreanEnum(Enum):
             return current_min
         else:
             return cls.list()[0].value
-

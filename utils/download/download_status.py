@@ -1,8 +1,11 @@
-
+"""Module for discussing the DownloadStatus of a RequestThread.
+"""
 from utils.structures.empyrean_enum import EmpyreanEnum
 
 
 class DownloadStatus(EmpyreanEnum):
+    """Helper Enum for conveying the status of a RequestThread.
+    """
     INSTANTIATING                   = 0
     INITIALIZING                    = 1
     BUILDING_REQUEST                = 2

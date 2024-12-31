@@ -1,14 +1,21 @@
+"""Contains the logic for creating a TKMT themed tkinter notebook widget.
+"""
+import tkinter as tk
 
 import TKinterModernThemes as TKMT
-import tkinter as tk
-from gui.frames.at_a_glance_frame import At_A_Glance_Frame
-from gui.notebooks.forecast_notebook import Forecast_Notebook
+
+from gui.frames.at_a_glance_frame import AtAGlanceFrame
+from gui.notebooks.forecast_notebook import ForecastNotebook
 from utils.structures.location.location import Location
 from utils.structures.watched_variable import WatchedVariable
 
-class Location_Notebook(TKMT.WidgetFrame):
+class LocationNotebook(TKMT.WidgetFrame):
+    """Creates the tkinter notebook widget, whose tabs are user specified locations.
 
-    def __init__(self, master, name, locations: list[Location], at_a_glance: At_A_Glance_Frame):
+    Args:
+        TKMT (WidgetFrame): The TKMT class that is extended.
+    """
+    def __init__(self, master, name, locations: list[Location], at_a_glance: AtAGlanceFrame):
         super().__init__(master, name)
 
         self.locations = locations
@@ -22,27 +29,45 @@ class Location_Notebook(TKMT.WidgetFrame):
 
         self.hourly_tab = None
         self.extended_tab = None
-        
+
         self.is_first_view = True
 
         self.location_tabs = { }
 
-        self.add_new_location_tab(at_a_glance)
+        self.__add_new_location_tab(at_a_glance)
         self.notebook.notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
-    def add_new_location_tab(self, at_a_glance):
+    def __add_new_location_tab(self, at_a_glance: AtAGlanceFrame):
+        """Helper function for creating a new tab for each location.
+
+        Args:
+            at_a_glance (AtAGlanceFrame): Container for the "At a Glance" widgets. The reference
+            is passed down to the forecast notebook
+            that is instatiated on the location's tab.
+        """
         for location in self.locations:
             frame = self.notebook.addTab(location.name)
-            forecastviews = Forecast_Notebook(frame, f"sub{location.alias}", location, at_a_glance)
+            forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, at_a_glance)
             self.location_tabs[location.name] = forecastviews
 
     def trigger_refresh(self):
+        """Callback used to notify that the current tab has changed. Deprecated.
+        """
         self.location_tabs[self.active_location.value.name].active_tab_changed()
-        
+
     def on_tab_change(self, event):
+        """Event listener for when the location tab changes. Updates the reference to the current
+        active location to enable callbacks
+        to execute.
+
+        Args:
+            event : tkinter <<NotebookTabChanged>> event that has been triggered.
+        """
         for location in self.locations:
             if event.widget.tab('current')['text'] == location.name:
                 self.active_location.value = location
 
     def on_location_change(self):
+        """Callback used to tell the corresponding forecast notebook that it is now active.
+        """
         self.location_tabs[self.active_location.value.name].active.value = True

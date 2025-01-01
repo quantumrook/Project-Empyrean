@@ -22,16 +22,18 @@ class ControlButtonsFrame(TKMT.WidgetFrame):
     def __init__(self, master, name, main_window):
         super().__init__(master, name)
         self.main_window = main_window
-        self.frame = self.addFrame(name='cb_frame', row=0, col=0, padx=0, pady=0)
+        self.frame = self.addFrame(name='cb_frame', row=0, col=0, padx=0, pady=0, gridkwargs={"ipadx":0, "ipady":0})
+        # self.frame.master['borderwidth'] = 1
+        # self.frame.master['relief'] = 'solid'
         self.buttons = { }
 
-        self.buttons["location"] = self.frame.Button("Add Location", self.on_location_click, col=0)
+        self.buttons["location"] = self.frame.Button("Add Location", self.on_location_click, col=0, sticky="ns", padx=0, pady=4, gridkwargs={"ipadx":0, "ipady":0})
         self.frame.Label(text="", col=1)
 
         images = { }
         for icon_name, icon_path in png_icons.items():
             img = Image.open(icon_path)
-            img = img.resize((36, 36), Image.Resampling.LANCZOS)
+            img = img.resize((42, 42), Image.Resampling.LANCZOS)
             images[icon_name] = ImageTk.PhotoImage(img)
 
         col_counter = 2
@@ -49,17 +51,23 @@ class ControlButtonsFrame(TKMT.WidgetFrame):
                 commands[name],
                 row=0,
                 col=col_counter,
-                widgetkwargs={"image" : img, "name" : name}
+                widgetkwargs={"image" : img, "name" : name},
+                gridkwargs={"ipadx" : 0, "ipady": 0},
+                padx=4,
+                pady=4,
+                sticky="n"
             )
             button.image = img
             col_counter += 1
 
             self.buttons[name] = button
 
-        self.frame.master.columnconfigure(0, weight=20)
-        self.frame.master.columnconfigure(1, weight=60)
-        self.frame.master.columnconfigure(2, weight=10)
-        self.frame.master.columnconfigure(3, weight=10)
+        # self.frame.master.rowconfigure(0, minsize=100, weight=1)
+
+        self.frame.master.columnconfigure(0, minsize=100, weight=20)
+        self.frame.master.columnconfigure(1, minsize=(1024-300), weight=60)
+        self.frame.master.columnconfigure(2, minsize=50, weight=10)
+        self.frame.master.columnconfigure(3, minsize=50, weight=10)
 
         self.request_window = None
 

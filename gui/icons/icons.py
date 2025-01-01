@@ -7,7 +7,7 @@ png_icons = {
     #https://www.flaticon.com/free-icons/pop-out created by Freepik - Flaticon
     #"download"  : f'{directory_paths["icons"]}\\download.png',              
     #https://www.flaticon.com/free-icons/obtain  created by meaicon - Flaticon
-    "download"  : f'{directory_paths["icons"]}\\cloud-download.png',
+    "download"  : f'{directory_paths["icons"]}\\wi-cloud-down.png',
     "splash"    : f'{directory_paths["icons"]}\\quantumrook_2.png'
 }
 

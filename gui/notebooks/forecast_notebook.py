@@ -21,7 +21,7 @@ class ForecastNotebook(TKMT.WidgetFrame):
 
         self.at_a_glance = at_a_glance
 
-        self.notebook = self.master.Notebook(name, padx=0, pady=0)
+        self.notebook = self.master.Notebook(name, row=1, col=0, padx=0, pady=0)
         self.notebook.notebook.name = name
         self.location = location
         self.display_frames = {

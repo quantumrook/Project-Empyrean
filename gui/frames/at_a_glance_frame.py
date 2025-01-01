@@ -19,10 +19,8 @@ class AtAGlanceFrame(TKMT.WidgetFrame):
     """
     def __init__(self, master, name):
         super().__init__(master, name)
-        self.frame = self.addLabelFrame("At a Glance", row=1, padx=0, pady=0, sticky=tk.NSEW, gridkwargs={"ipadx":0, "ipady":0})
-        self.frame.master['borderwidth'] = 5
-        self.frame.master['relief'] = 'solid'
-
+        self.frame = self.addLabelFrame("At a Glance", row=0, padx=0, pady=0, sticky=tk.NSEW, gridkwargs={"ipadx":0, "ipady":0})
+        self.master.rowconfigure(0, minsize=160)
         self.hourly_forecast = WatchedVariable()
         self.hourly_forecast.on_change = self.update_display
 

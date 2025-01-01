@@ -41,21 +41,17 @@ class MainWindow(TKMT.ThemedTKinterFrame):
         self.load_private_data()
 
         self.controlbuttons_frame = ControlButtonsFrame(self.root, "ControlButtonsFrame", self)
-        self.at_a_glance_frame = AtAGlanceFrame(self.root, "AtAGlanceFrame")
 
-        self.forecast_frame = self.addFrame('forecastStuff', row=2, col=0, padx=0, pady=0, sticky=tk.NSEW, gridkwargs={"ipadx":0, "ipady":0})
+        self.forecast_frame = self.addFrame('forecastStuff', row=1, col=0, padx=0, pady=0, sticky=tk.NSEW, gridkwargs={"ipadx":0, "ipady":0})
         self.location_notebook = LocationNotebook(
             self.forecast_frame,
             "locationViewer",
-            self.locations,
-            self.at_a_glance_frame
+            self.locations
         )
 
-        r1=70
-        r2=160
+        r1=70 #TODO: better place for this?
         self.root.rowconfigure(0, minsize=r1)
-        self.root.rowconfigure(1, minsize=r2)
-        self.root.rowconfigure(2, minsize=(1024-r1-r2))
+        self.root.rowconfigure(1, minsize=1024-r1)
 
     def load_private_data(self) -> None:
         """Loads in any `Location` that is currently saved to private.json. 

@@ -15,10 +15,11 @@ class LocationNotebook(TKMT.WidgetFrame):
     Args:
         TKMT (WidgetFrame): The TKMT class that is extended.
     """
-    def __init__(self, master, name, locations: list[Location], at_a_glance: AtAGlanceFrame):
+    def __init__(self, master, name, locations: list[Location]):
         super().__init__(master, name)
 
-        self.at_a_glance = at_a_glance
+        #self.at_a_glance = AtAGlanceFrame(self.root, "AtAGlanceFrame")
+
         self.locations = locations
 
         self.active_location = WatchedVariable()
@@ -50,7 +51,8 @@ class LocationNotebook(TKMT.WidgetFrame):
             if location.name in list(self.location_tabs.keys()):
                 continue
             frame = self.notebook.addTab(location.name)
-            forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, self.at_a_glance)
+            at_a_glance = AtAGlanceFrame(frame.master, "AtAGlanceFrame")
+            forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, at_a_glance)
             self.location_tabs[location.name] = forecastviews
             if self.active_location.value is None:
                 self.active_location.value = location

@@ -82,14 +82,16 @@ def save_location_data(response_json, location: Location) -> Location:
         data_from_file = json.load(location_JSON_file)
 
     was_existing_location = False
-    for location_dict in data_from_file["locations"]:
-        if location_dict[Location.Keys.alias] == location_to_add.alias:
-            was_existing_location = True
-            location_dict[Location.Keys.api_grid][API_Grid.Keys.lastverified] = location_to_add.api_grid.lastverified
-            location_dict[Location.Keys.api_grid][API_Grid.Keys.x] = str(location_to_add.api_grid.x)
-            location_dict[Location.Keys.api_grid][API_Grid.Keys.y] = str(location_to_add.api_grid.y)
-            location_dict[Location.Keys.api_grid][API_Grid.Keys.station] = location_to_add.api_grid.station
-
+    if "locations" in data_from_file:
+        for location_dict in data_from_file["locations"]:
+            if location_dict[Location.Keys.alias] == location_to_add.alias:
+                was_existing_location = True
+                location_dict[Location.Keys.api_grid][API_Grid.Keys.lastverified] = location_to_add.api_grid.lastverified
+                location_dict[Location.Keys.api_grid][API_Grid.Keys.x] = str(location_to_add.api_grid.x)
+                location_dict[Location.Keys.api_grid][API_Grid.Keys.y] = str(location_to_add.api_grid.y)
+                location_dict[Location.Keys.api_grid][API_Grid.Keys.station] = location_to_add.api_grid.station
+    else:
+        data_from_file["locations"] = [ ]
     if not was_existing_location:
         data_from_file["locations"].append(location_to_add.to_json())
     data_as_JSON_Object = json.dumps(data_from_file, indent=4, sort_keys=False)

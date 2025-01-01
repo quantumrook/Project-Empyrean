@@ -52,6 +52,8 @@ class LocationNotebook(TKMT.WidgetFrame):
             frame = self.notebook.addTab(location.name)
             forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, self.at_a_glance)
             self.location_tabs[location.name] = forecastviews
+            if self.active_location.value is None:
+                self.active_location.value = location
 
     def trigger_refresh(self):
         """Callback used to notify that the current tab has changed.

@@ -18,6 +18,9 @@ def get_private_data(filename: str) -> list[Location]:
     with open(filename) as file:
         data = json.load(file)
 
+    if "locations" not in data:
+        return [ ]
+
     locations = [ ]
     for location in data["locations"]:
         location_data = Location(location)

@@ -120,9 +120,14 @@ class RequestThreadManagerWindow(tk.Toplevel):
             if progress_count > self.downloadbar["value"]:
                 self.downloadbar["value"] = progress_count
 
+        if download_thread.location is None:
+            location_name = download_thread.new_location.value.name
+        else:
+            location_name = download_thread.location.name
+
         self.status_text_log.insert(
-            END, 
-            f"({download_thread.location.name}).{download_thread.request_type.value.title()}: {download_thread.status.value.name.title()}\n"
+            END,
+            f"({location_name}).{download_thread.request_type.value.title()}: {download_thread.status.value.name.title()}\n"
         )
         self.monitor_download(download_thread)
 
@@ -150,7 +155,8 @@ class RequestThreadManagerWindow(tk.Toplevel):
         if not currently_updating_location and len(self.queue) > 0:
             new_download_thread = self.queue.pop(0)
             new_download_thread.start()
-            new_download_thread.new_location.on_change = lambda: new_download_thread.update_location_with_new_POINTS_data(self.updated_location)
+            if new_download_thread.request_type != RequestType.POINTS:
+                new_download_thread.new_location.on_change = lambda: new_download_thread.update_location_with_new_POINTS_data(self.updated_location)
             self.monitor_download(new_download_thread)
         elif len(self.queue) == 0:
             self.download_status = DownloadStatus.SAVE_COMPLETE
@@ -169,7 +175,6 @@ class RequestThreadManagerWindow(tk.Toplevel):
             self.monitor_queue()
         else:
             self.end_download(download_thread)
-        
 
     def close_manager(self) -> None:
         """Handler for closing the window when all threads are complete. Destroys all 

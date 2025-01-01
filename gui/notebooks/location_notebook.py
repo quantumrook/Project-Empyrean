@@ -18,6 +18,7 @@ class LocationNotebook(TKMT.WidgetFrame):
     def __init__(self, master, name, locations: list[Location], at_a_glance: AtAGlanceFrame):
         super().__init__(master, name)
 
+        self.at_a_glance = at_a_glance
         self.locations = locations
 
         self.active_location = WatchedVariable()
@@ -34,10 +35,10 @@ class LocationNotebook(TKMT.WidgetFrame):
 
         self.location_tabs = { }
 
-        self.__add_new_location_tab(at_a_glance)
+        self.__add_new_location_tab()
         self.notebook.notebook.bind('<<NotebookTabChanged>>', self.on_tab_change)
 
-    def __add_new_location_tab(self, at_a_glance: AtAGlanceFrame):
+    def __add_new_location_tab(self):
         """Helper function for creating a new tab for each location.
 
         Args:
@@ -46,13 +47,16 @@ class LocationNotebook(TKMT.WidgetFrame):
             that is instatiated on the location's tab.
         """
         for location in self.locations:
+            if location.name in list(self.location_tabs.keys()):
+                continue
             frame = self.notebook.addTab(location.name)
-            forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, at_a_glance)
+            forecastviews = ForecastNotebook(frame, f"sub{location.alias}", location, self.at_a_glance)
             self.location_tabs[location.name] = forecastviews
 
     def trigger_refresh(self):
-        """Callback used to notify that the current tab has changed. Deprecated.
+        """Callback used to notify that the current tab has changed.
         """
+        self.__add_new_location_tab()
         self.location_tabs[self.active_location.value.name].active_tab_changed()
 
     def on_tab_change(self, event):

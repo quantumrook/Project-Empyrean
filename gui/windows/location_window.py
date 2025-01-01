@@ -27,7 +27,7 @@ class NewLocationWindow(TKMT.ThemedTKinterFrame):
         """
         super().__init__(title, theme, mode, usecommandlineargs, useconfigfile)
 
-        self.app_root_window = root_window
+        self.main_window = root_window
         self.request_window = None
         self.new_location = None # TODO:: change to watched variable?
         self.__center_window()
@@ -70,7 +70,7 @@ class NewLocationWindow(TKMT.ThemedTKinterFrame):
 
         lbl_frame = self.addLabelFrame(text="By Latitude and Longitude", row=1, col=0, sticky=tk.EW)
 
-        lbl_frame.Label(text="Lattitude:", row=0, col=0, weight="normal")
+        lbl_frame.Label(text="Latitude:", row=0, col=0, weight="normal")
         lbl_frame.Entry(textvariable=self.latitude_var, row=0, col=1)
 
         lbl_frame.Label(text="Longitude", row=1, col=0, weight="normal")
@@ -111,7 +111,7 @@ class NewLocationWindow(TKMT.ThemedTKinterFrame):
 
         if self.request_window is None:
             self.request_window = RequestThreadManagerWindow()
-            self.request_window.location_properties = { 
+            self.request_window.location_properties = {
                 Location.Keys.alias : self.alias_var.get(),
                 Location.Keys.name : self.name_var.get(),
                 Location.Keys.timezone : ""
@@ -130,10 +130,10 @@ class NewLocationWindow(TKMT.ThemedTKinterFrame):
         if self.request_window.download_status == DownloadStatus.SAVE_COMPLETE:
             print("Save Complete - Displaying data.")
 
-            self.app_root_window.locations.append(self.request_window.updated_location)
+            self.main_window.locations.append(self.request_window.updated_location.value)
+            self.main_window.location_notebook.trigger_refresh()
             self.request_window.destroy()
             self.request_window = None
-            self.app_root_window.add_new_location_tab()
             self.handleExit()
         else:
             self.root.after(1000, self._monitor_requests)

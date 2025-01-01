@@ -60,7 +60,7 @@ class RequestThread(Thread):
         url = f'{self.__api_address}/'
         match self.request_type:
             case RequestType.POINTS:
-                url += f'points/{self.location.position.lattitude},{self.location.position.longitude}/'
+                url += f'points/{self.location.position.latitude},{self.location.position.longitude}/'
             case RequestType.EXTENDED:
                 url += f'gridpoints/{self.location.api_grid.station}/{self.location.api_grid.x},{self.location.api_grid.y}/forecast'
             case RequestType.HOURLY:

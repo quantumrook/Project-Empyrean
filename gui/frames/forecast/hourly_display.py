@@ -21,7 +21,7 @@ class HourlyDisplayFrame(ForecastDisplayFrame):
     def __init__(self, master, name, location, at_a_glance: AtAGlanceFrame):
         super().__init__(master, name, location)
         self.at_a_glance = at_a_glance
-        self.plots_frame = self.addFrame("plots", row=2, col=0)
+        self.plots_frame = self.addFrame("plots", row=2, col=0, pady=0, sticky=tk.N)
         self.temperature_frame = TemperatureFrame(
             master=self.plots_frame,
             name="TemperaturePlotContainer",
@@ -56,7 +56,8 @@ class HourlyDisplayFrame(ForecastDisplayFrame):
             col= 1,
             colspan = 1,
             rowspan = 1,
-            sticky = tk.W
+            sticky = tk.W,
+            pady=4
         )
         summary = ""
         for entry in self.extended_forecast.value.forecasts[0:1]:
@@ -76,7 +77,8 @@ class HourlyDisplayFrame(ForecastDisplayFrame):
             col= 0,
             colspan = 2,
             rowspan = 1,
-            sticky = tk.EW
+            sticky = tk.EW,
+            pady=4
         )
 
     def on_hourly_forecast_change(self) -> None:

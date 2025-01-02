@@ -4,7 +4,7 @@ import tkinter as tk
 
 import TKinterModernThemes as TKMT
 from PIL import Image, ImageTk
-from gui.icons.icons import clock_icons
+from gui.icons.icons import clock_icons, colored_clock_icons
 from utils.structures.datetime import TODAY
 from utils.structures.forecast.empyrean.forecast import EmpyreanForecast
 from utils.structures.watched_variable import WatchedVariable
@@ -48,6 +48,15 @@ class AtAGlanceFrame(TKMT.WidgetFrame):
                 self.clocks.append(img)
             else:
                 self.clocks.insert(0, img)
+        self.colored_clocks = { }
+        for i in range(1,13):
+            self.colored_clocks[i] = { }
+            for q in range(0,5):
+                name = f'wi-time-{i}-g-{q}q'
+                img = Image.open(colored_clock_icons[name])
+                img= img.resize((30,30), Image.Resampling.LANCZOS)
+                img = ImageTk.PhotoImage(img)
+                self.colored_clocks[i][q] = img
 
     def build_at_a_glance(self):
         """Helper function to add in the initial widgets that don't need forecast
@@ -56,13 +65,25 @@ class AtAGlanceFrame(TKMT.WidgetFrame):
         just_hour = tk.IntVar()
         hour = int(TODAY.hour())
         just_hour.set(hour)
-        self.hour_progressbar = self.frame.Progressbar(just_hour, mode='determinate', lower=5, upper=18, row=1, col=1, colspan=12, padx=10, pady=0)
+        self.hour_progressbar = self.frame.Progressbar(just_hour, mode='indeterminate', lower=5, upper=18, row=1, col=1, colspan=12, padx=10, pady=0)
 
         for col in range(6,18):
             hour_normalized = col
-            if hour_normalized > 11:
+            if hour_normalized > 12:
                 hour_normalized -= 12
-            clock_lbl = self.frame.Label(f"", widgetkwargs={"image" : self.clocks[hour_normalized]}, row=0, col=(col-5), padx=5, pady=5)
+            match abs(hour - col):
+                case 0:
+                    q_fill = 4
+                case 1:
+                    q_fill = 3
+                case 2:
+                    q_fill = 2
+                case 3:
+                    q_fill = 1
+                case _:
+                    q_fill = 0
+            img = self.colored_clocks[hour_normalized][q_fill]
+            clock_lbl = self.frame.Label("", widgetkwargs={"image" : img}, row=0, col=(col-5), padx=5, pady=5)
             self.clock_labels.append(clock_lbl)
 
     def add_temp_labels(self):

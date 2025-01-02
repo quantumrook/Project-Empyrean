@@ -13,6 +13,6 @@ class MatPlotLibFrame(TKMT.WidgetFrame):
     """
     def __init__(self, master, name, plotname, row=0, col=0):
         super().__init__(master, name)
-        self.labelframe = self.master.addLabelFrame(plotname, row=row, col=col)
+        self.labelframe = self.master.addLabelFrame(plotname, row=row, col=col, pady=0)
         self.canvas, self.fig, self.ax, self.background, self.accent = self.labelframe.matplotlibFrame(plotname)
         self.plotdata = PlotData()

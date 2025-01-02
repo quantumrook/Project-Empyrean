@@ -1,10 +1,13 @@
+"""Module for wrapping the API response JSON to objects."""
 from typing import Any
 
 from utils.structures.json.unit_value import UnitValue
 
 
 class Period():
+    """Wrapper for the Period entries."""
     class Keys():
+        """Helper class for mapping keys to variables."""
         number = "number"
         name = "name"
         startTime = "startTime"
@@ -21,7 +24,7 @@ class Period():
         icon = "icon"
         shortForecast = "shortForecast"
         detailedForecast = "detailedForecast"
-    
+
     number: int
     name: str
     startTime: str
@@ -65,7 +68,9 @@ class Period():
 
 
 class PropertiesData():
+    """Wrapper for the forecast properties content."""
     class Keys():
+        """Helper class for mapping keys to variables."""
         units = "units"
         forecastGenerator = "forecastGenerator"
         generatedAt = "generatedAt"

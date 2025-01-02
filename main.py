@@ -1,13 +1,11 @@
 import time
 import gui.windows.main_window as mw
-import tkinter as tk
 
 from gui.windows.splash_window import SplashScreen
 
+
 if __name__ == "__main__":
 
-    # app = AtAGlance("park", "dark")
-    # app.run()
 
     app = mw.MainWindow("park", "dark")
     # app.root.withdraw()
@@ -25,3 +23,4 @@ if __name__ == "__main__":
     # app.root.deiconify()
     # splashscreen.destroy()
     app.run()
+

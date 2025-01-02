@@ -1,15 +1,17 @@
+"""Module for containing all the wind information for a time entry of a forecast."""
 from typing import Self
 from utils.structures.forecast.api.forecast import Period
-from utils.structures.json.unit_value import UnitValue, Value_Type
+from utils.structures.json.unit_value import UnitValue, ValueType
 
 
 class Wind():
-
+    """Contains all the wind data entry for a forecast entry."""
     class Keys():
+        """Helper class for mapping keys to variables."""
         speedLow: str = "speedLow"
         speedHigh: str = "speedHigh"
         direction: str = "direction"
-    
+
     def __init__(self) -> None:
         self.speedLow: UnitValue = None
         self.speedHigh: UnitValue = None
@@ -17,6 +19,7 @@ class Wind():
 
     @staticmethod
     def from_API(period: Period) -> Self:
+        """Helper function for creation from API data."""
         new_instance = Wind()
         wind_split = period.windSpeed.split(' ')
 
@@ -43,22 +46,25 @@ class Wind():
 
     @staticmethod
     def from_Empyrean(json_data: dict) -> Self:
+        """Helper function for creation from saved JSON data."""
         new_instance = Wind()
         if Wind.Keys.speedLow in json_data.keys():
             new_instance.speedLow = UnitValue(json_data[new_instance.Keys.speedLow])
-        
+
         new_instance.speedHigh = UnitValue(json_data[new_instance.Keys.speedHigh])
         new_instance.direction = UnitValue(json_data[new_instance.Keys.direction])
         return new_instance
 
     def get_average(self) -> UnitValue:
-        return UnitValue(
-            unitCode= self.speedHigh.unitCode,
-            value= round((self.speedHigh.value + self.speedLow.value)/ 2),
-            value_type= Value_Type.INTEGER
-        )
+        """Helper function for getting the average windspeed."""
+        return UnitValue({
+            UnitValue.Keys.unitCode : self.speedHigh.unitCode,
+            UnitValue.Keys.value : round((self.speedHigh.value + self.speedLow.value)/ 2),
+            UnitValue.Keys.valueType : ValueType.INTEGER
+        })
 
     def to_dict(self) -> dict[str, dict[str, str]]:
+        """Helper function for preparing to save JSON data."""
         as_dict = {
                 self.Keys.speedHigh : {
                     UnitValue.Keys.unitCode : self.speedHigh.unitCode,
@@ -78,4 +84,3 @@ class Wind():
                     UnitValue.Keys.valueType : self.speedLow.value_type.name
                 }
         return as_dict
-
